@@ -41,6 +41,7 @@ paths:
                   $ref: '#/components/examples/CreateProjectResponseExample'
         $ref: '#/components/responses/DefaultErrorResponses'
 
+  /v1/projects/{projectId}:
     get:
       summary: Get a project
       description: Get a project by ID.
