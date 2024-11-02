@@ -8,6 +8,17 @@ export default {
     './content/**/*.{md,mdx}',
     './mdx-components.{ts,tsx}',
     './node_modules/fumadocs-ui/dist/**/*.js',
+    './node_modules/fumadocs-openapi/dist/**/*.js',
   ],
-  presets: [createPreset()],
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ['var(--font-geist-sans)'],
+        mono: ['var(--font-geist-mono)'],
+      },
+    },
+  },
+  presets: [createPreset({
+    preset: 'vitepress',
+  })],
 };
