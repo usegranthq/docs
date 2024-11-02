@@ -2,7 +2,7 @@ openapi: 3.1.0
 
 info:
   title: UseGrant API
-  description: UseGrant API for interacting with UseGrant services.
+  description: API for interacting with UseGrant services.
   version: 1.0.0
   contact:
     email: support@usegrant.dev
@@ -26,25 +26,25 @@ paths:
             schema:
               $ref: '#/components/schemas/CreateProjectRequest'
             examples:
-              default_example:
+              default:
                 $ref: '#/components/examples/CreateProjectRequestExample'
-
       responses:
         201:
-          description: Created
+          description: Project created successfully.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Project'
               examples:
-                default_example:
+                default:
                   $ref: '#/components/examples/CreateProjectResponseExample'
-        $ref: '#/components/responses/DefaultErrorResponses'
+        allErrors:
+          $ref: '#/components/responses/AllErrorResponses'
 
   /v1/projects/{projectId}:
     get:
       summary: Get a project
-      description: Get a project by ID.
+      description: Retrieve a project by its ID.
       operationId: getProject
       tags:
         - Projects
@@ -52,19 +52,20 @@ paths:
         - $ref: '#/components/parameters/ProjectId'
       responses:
         200:
-          description: Success
+          description: Project retrieved successfully.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Project'
               examples:
-                default_example:
+                default:
                   $ref: '#/components/examples/GetProjectResponseExample'
-        $ref: '#/components/responses/DefaultErrorResponses'
+        allErrors:
+          $ref: '#/components/responses/AllErrorResponses'
 
     delete:
       summary: Delete a project
-      description: Delete a project by ID.
+      description: Delete a project by its ID.
       operationId: deleteProject
       tags:
         - Projects
@@ -72,14 +73,109 @@ paths:
         - $ref: '#/components/parameters/ProjectId'
       responses:
         204:
-          description: No content
-        $ref: '#/components/responses/DefaultErrorResponses'
+          description: Project deleted successfully.
+        allErrors:
+          $ref: '#/components/responses/AllErrorResponses'
+
+  /v1/projects/{projectId}/clients:
+    post:
+      summary: Create a client
+      description: Create a new client within a specified project.
+      operationId: createClient
+      tags:
+        - Clients
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateClientRequest'
+            examples:
+              default:
+                $ref: '#/components/examples/CreateClientRequestExample'
+      responses:
+        201:
+          description: Client created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+              examples:
+                default:
+                  $ref: '#/components/examples/CreateClientResponseExample'
+        allErrors:
+          $ref: '#/components/responses/AllErrorResponses'
+
+  /v1/projects/{projectId}/clients/{clientId}:
+    get:
+      summary: Get a client
+      description: Retrieve a client by its ID.
+      operationId: getClient
+      tags:
+        - Clients
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/ClientId'
+      responses:
+        200:
+          description: Client retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+              examples:
+                default:
+                  $ref: '#/components/examples/GetClientResponseExample'
+        allErrors:
+          $ref: '#/components/responses/AllErrorResponses'
+
+    delete:
+      summary: Delete a client
+      description: Delete a client by its ID.
+      operationId: deleteClient
+      tags:
+        - Clients
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/ClientId'
+      responses:
+        204:
+          description: Client deleted successfully.
+        allErrors:
+          $ref: '#/components/responses/AllErrorResponses'
+
+  /v1/projects/{projectId}/clients/{clientId}/tokens:
+    post:
+      summary: Create a token
+      description: Create a new token for a client.
+      operationId: createToken
+      tags:
+        - Tokens
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/ClientId'
+      responses:
+        201:
+          description: Token created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+              examples:
+                default:
+                  $ref: '#/components/examples/CreateTokenResponseExample'
+        allErrors:
+          $ref: '#/components/responses/AllErrorResponses'
 
 components:
   securitySchemes:
     BearerAuth:
       type: http
       scheme: bearer
+      bearerFormat: ApiKey
+
   parameters:
     ProjectId:
       name: projectId
@@ -87,22 +183,47 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/ProjectId'
+    ClientId:
+      name: clientId
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/ClientId'
+
   schemas:
     ProjectId:
       type: string
-      description: ID of the project
+      description: Unique identifier for a project.
       example: 123e4567-e89b-12d3-a456-426614174000
+
     ProjectName:
       type: string
-      description: Name of the project
+      description: Name of the project.
       example: Acme Auth App
+
     ProjectDescription:
       type: string
-      description: Description of the project
+      description: Description of the project.
       example: Acme Auth App Description
+
+    ClientId:
+      type: string
+      description: Unique identifier for a client.
+      example: 123e4567-e89b-12d3-a456-426614174000
+
+    ClientName:
+      type: string
+      description: Name of the client.
+      example: Acme Auth Client
+
+    ClientDescription:
+      type: string
+      description: Description of the client.
+      example: Client for Acme Auth App
+
     CreateProjectRequest:
       type: object
-      description: Request payload for creating a new project.
+      description: Payload for creating a new project.
       properties:
         name:
           $ref: '#/components/schemas/ProjectName'
@@ -111,6 +232,19 @@ components:
       required:
         - name
         - description
+
+    CreateClientRequest:
+      type: object
+      description: Payload for creating a new client.
+      properties:
+        name:
+          $ref: '#/components/schemas/ClientName'
+        description:
+          $ref: '#/components/schemas/ClientDescription'
+      required:
+        - name
+        - description
+
     Project:
       type: object
       properties:
@@ -124,40 +258,112 @@ components:
         - id
         - name
         - description
+
+    Client:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/ClientId'
+        name:
+          $ref: '#/components/schemas/ClientName'
+        description:
+          $ref: '#/components/schemas/ClientDescription'
+      required:
+        - id
+        - name
+        - description
+
+    Token:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: Access token for the client.
+        expiresAt:
+          type: string
+          description: Expiration date and time of the access token.
+        type:
+          type: string
+          description: Type of the token.
+      required:
+        - accessToken
+        - expiresAt
+        - type
   examples:
     CreateProjectRequestExample:
-      summary: Create project request
+      summary: Example request for creating a project.
       value:
         name: Acme App
-        description: Acme App Description
+        description: Project for Acme application.
+
     CreateProjectResponseExample:
-      summary: Created project
+      summary: Example response for created project.
       value:
         id: 123e4567-e89b-12d3-a456-426614174000
         name: Acme App
-        description: Acme App Description
+        description: Project for Acme application.
+
     GetProjectResponseExample:
-      summary: Get project
+      summary: Example response for retrieving a project.
       value:
         id: 123e4567-e89b-12d3-a456-426614174000
         name: Acme App
-        description: Acme App Description
+        description: Project for Acme application.
+
+    CreateClientRequestExample:
+      summary: Example request for creating a client.
+      value:
+        name: Client Name
+        description: Client for Acme App.
+
+    CreateClientResponseExample:
+      summary: Example response for created client.
+      value:
+        id: 123e4567-e89b-12d3-a456-426614174000
+        name: Client Name
+        description: Client for Acme App.
+
+    GetClientResponseExample:
+      summary: Example response for retrieving a client.
+      value:
+        id: 123e4567-e89b-12d3-a456-426614174000
+        name: Client Name
+        description: Client for Acme App.
+
+    CreateTokenResponseExample:
+      summary: Example response for created token.
+      value:
+        accessToken: 123e4567-e89b-12d3-a456-426614174000
+        expiresAt: 2024-01-01T00:00:00Z
+        type: Bearer
+
   responses:
-    DefaultErrorResponses:
-      400:
-        description: Bad request
-      404:
-        description: Not found
-      401:
-        description: Unauthorized
-      500:
-        description: Internal server error
+    AllErrorResponses:
+      description: Common error responses.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+              message:
+                type: string
+      responses:
+        400:
+          description: Invalid request parameters.
+        401:
+          description: Authentication is required.
+        404:
+          description: Resource not found.
+        500:
+          description: Internal server error.
 
 tags:
   - name: Projects
-    description: Projects are the main entities in UseGrant.
+    description: Project management in UseGrant.
   - name: Clients
-    description: Clients are the entities that receive grants.
+    description: Client entities that interact with UseGrant services.
 
 security:
   - BearerAuth: []
