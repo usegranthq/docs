@@ -152,7 +152,7 @@ paths:
       description: Create a new token for a client.
       operationId: createToken
       tags:
-        - Tokens
+        - AccessTokens
       parameters:
         - $ref: '#/components/parameters/ProjectId'
         - $ref: '#/components/parameters/ClientId'
@@ -364,6 +364,8 @@ tags:
     description: Project management in UseGrant.
   - name: Clients
     description: Client entities that interact with UseGrant services.
+  - name: AccessTokens
+    description: Access tokens for clients.
 
 security:
   - BearerAuth: []

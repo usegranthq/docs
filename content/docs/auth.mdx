@@ -1,0 +1,37 @@
+---
+title: API Authentication
+---
+
+The UseGrant API uses Bearer tokens for authentication. We recommend beginning with this section to learn how to securely access the API.
+From there, you can explore the guides and examples for different endpoints and see how they can help you achieve your goals.
+
+To start using the UseGrant API, the first step is to create an API token.
+To generate a token,
+
+1. log in to the app
+2. navigate to the settings page at `/settings/token`.
+3. provide a name for the token and click on `Generate`.
+
+Ensure that you store the token securely. For subsequent requests, the client authenticates by including this token in the `Authorization` header of HTTP requests, prefixed with "Bearer".
+
+Example:
+
+```http
+Authorization: Bearer usegrant_<token>
+```
+
+Note: The token you generate will have the format `usegrant_<token>`.
+The `usegrant_` prefix is used to indicate that it is a UseGrant token and you can also use it to identify if the token is accidentally exposed.
+
+If/When the token is expired, you will receive a `401 Unauthorized` response.
+
+### Example
+
+Here is an example of how to include the Bearer token in a `curl` request to create a project:
+
+```bash
+curl -X POST https://sdk.usegrant.com/v1/projects \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "My Project", "description": "A project for testing"}'
+```

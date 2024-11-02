@@ -1,0 +1,37 @@
+---
+title: Security
+---
+
+Our authentication system is built on `zero trust principles`.
+Your service implementations and use cases remain completely private with you, on your servers.
+
+We only collect the essential information: your signup email to authenticate you to the app.
+We do not collect or store any data about your services or intended usage patterns.
+We log only the essential system logs (never any user data of any kind) to ensure the app is running as expected.
+These logs are wiped after a short period of time (not exceeding 30 days).
+
+This ensures maximum privacy and reduces the risk of sensitive information being exposed.
+By limiting the data we store, we minimize the potential impact of any data breaches.
+
+### Breach Resistant
+
+These measures make our system breach resistant.
+Even in the unlikely event of a breach, there is no actionable information at risk. Only you use our services,
+not the other way around.
+
+During the authentication process, your service will contact the following endpoints to verify the token if it signed by us.
+
+First, it will contact the following endpoint to find the url of the `jwks.json` endpoint.
+The jwks endpoint holds the public keys that are used to verify the token signature.
+
+```http
+https://<your-custom-domain-or-project-url>/.well-known/openid-configuration
+```
+
+Next, it will contact the following endpoint to get the public keys.
+
+```http
+https://<your-custom-domain-or-project-url>/.well-knonw/jwks.json
+```
+
+Requests to these endpoints are not logged.
