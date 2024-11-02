@@ -1,7 +1,7 @@
 import { RootProvider } from 'fumadocs-ui/provider';
 import type { ReactNode } from 'react';
-import { GeistSans } from 'geist/font/sans'
-import { GeistMono } from 'geist/font/mono'
+import { GeistSans } from 'geist/font/sans';
+import { GeistMono } from 'geist/font/mono';
 
 import './global.css';
 
@@ -15,7 +15,9 @@ export default function Layout({ children }: { children: ReactNode }) {
               api: '/docs/api/search',
             },
           }}
-        >{children}</RootProvider>
+        >
+          {children}
+        </RootProvider>
       </body>
     </html>
   );

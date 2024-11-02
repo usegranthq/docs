@@ -1,9 +1,4 @@
 {
-  "pages": [
-    "index",
-    "...",
-    "---API Reference---",
-    "...(api)"
-  ],
+  "pages": ["index", "...", "---API Reference---", "...(api)"],
   "defaultOpen": true
 }

@@ -1,0 +1,6 @@
+'*.{js,ts,jsx,tsx}':
+  - prettier --write
+  - next lint --file
+
+'*.{md,mdx,json,yml,yaml}':
+  - prettier --write
