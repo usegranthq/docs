@@ -3,7 +3,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "prebuild": "node scripts/generate-docs.mjs",
+    "prebuild": "node ./scripts/generate-docs.js",
     "build": "next build",
     "dev": "next dev --turbopack",
     "start": "next start",
