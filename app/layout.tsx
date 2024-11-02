@@ -9,7 +9,13 @@ export default function Layout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${GeistSans.className} ${GeistMono.variable}`} suppressHydrationWarning>
       <body className="flex flex-col min-h-screen">
-        <RootProvider>{children}</RootProvider>
+        <RootProvider
+          search={{
+            options: {
+              api: '/docs/api/search',
+            },
+          }}
+        >{children}</RootProvider>
       </body>
     </html>
   );
