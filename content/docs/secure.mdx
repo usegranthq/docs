@@ -1,8 +1,9 @@
 ---
 title: Security
+description: Learn about UseGrant's security features
 ---
 
-Our authentication system is built on `zero trust principles`.
+The system is built on `zero trust principles`.
 Your service implementations and use cases remain completely private with you, on your servers.
 
 We only collect the essential information: your signup email to authenticate you to the app.
@@ -21,17 +22,20 @@ not the other way around.
 
 During the authentication process, your service will contact the following endpoints to verify the token if it signed by us.
 
-First, it will contact the following endpoint to find the url of the `jwks.json` endpoint.
-The jwks endpoint holds the public keys that are used to verify the token signature.
+First, your service will contact the following endpoint to retrieve the URL of the `jwks.json` endpoint.
+The `jwks.json` endpoint contains the public keys used to verify the token signature.
+These are public endpoints and this workflow is the openid standard.
 
 ```http
-https://<your-custom-domain-or-project-url>/.well-known/openid-configuration
+GET /.well-known/openid-configuration
 ```
 
 Next, it will contact the following endpoint to get the public keys.
 
 ```http
-https://<your-custom-domain-or-project-url>/.well-knonw/jwks.json
+GET /.well-known/jwks.json
 ```
 
 Requests to these endpoints are not logged.
+
+These endpoints will be accessible via your project's URL or custom domain, if configured.
