@@ -360,7 +360,7 @@ $RECYCLE.BIN/
 # .pnp.*
 
 # FumaDocs
-content/docs/(api)/**/*.mdx
+content/docs/api/**/*.mdx
 .source/
 content-collections/
 contentlayer/

@@ -3,8 +3,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "generate-docs": "node ./scripts/generate-docs.js",
-    "prebuild": "npm run generate-docs",
+    "genapi": "node ./scripts/generate-docs.js",
+    "prebuild": "npm run genapi",
     "build": "next build",
     "dev": "next dev --turbopack",
     "start": "next start",
