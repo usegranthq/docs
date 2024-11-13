@@ -23,17 +23,17 @@ not the other way around.
 
 During the authentication process, your service will contact the following endpoints to verify the token if it signed by us.
 
-First, your service will contact the following endpoint to retrieve the URL of the `jwks.json` endpoint.
+First, your service will contact the following endpoint to retrieve the URL of the `jwks` endpoint.
 
 ```http
 GET /.well-known/openid-configuration
 ```
 
-The `jwks.json` endpoint contains the public keys used to verify the token signature.
+The `jwks` endpoint contains the public keys used to verify the token signature.
 Next, it will contact the following endpoint to get the public keys.
 
 ```http
-GET /.well-known/jwks.json
+GET /.well-known/jwks
 ```
 
 Requests to these endpoints are not logged.

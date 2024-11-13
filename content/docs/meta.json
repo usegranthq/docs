@@ -1,4 +1,4 @@
 {
-  "pages": ["index", "secure", "auth", "...", "---Guides---", "...guides", "---API Reference---", "...api"],
+  "pages": ["index", "secure", "auth", "...", "------", "guides", "---API Reference---", "...api"],
   "defaultOpen": true
 }
