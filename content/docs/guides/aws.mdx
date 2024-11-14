@@ -14,6 +14,9 @@ Applications can use these temporary security credentials to sign calls to AWS s
 - An AWS account
 - AWS CLI installed on your system
 
+Before proceeding, you must plan your security strategy to ensure that access tokens are only allocated in a predictable way.
+To control how your cloud provider issues access tokens, you must define at least one condition, so that untrusted repositories can’t request access tokens for your cloud resources.
+
 ## Step 1: Set Up an OpenID Connect Provider in AWS
 
 1. Log in to the AWS Management Console and navigate to the IAM service.
@@ -21,9 +24,12 @@ Applications can use these temporary security credentials to sign calls to AWS s
 3. Click on "Create Provider".
 4. Select "OpenID Connect" as the provider type.
 5. Fill in the required details and click "Create Provider".
-   Ensure that the audience matches the one used to create the client in useGrant.dev.
 
+For the provider URL use the url of your project or the custom domain you set up.
+
+Ensure that the audience matches the one used to create the client in useGrant.dev.
 For AWS, the audience is typically `sts.amazonaws.com`.
+
 Refer to the [AWS documentation](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc.html) for more details and customization options.
 
 ## Step 2: Create a Role in AWS
@@ -34,6 +40,33 @@ Refer to the [AWS documentation](https://docs.aws.amazon.com/IAM/latest/UserGuid
 4. Choose "Web Identity" as the trusted entity.
 5. Select the provider you set up in the previous step and choose the appropriate audience.
 
+For enhanced security, you can also create a custom trust policy that is more restrictive.
+For example:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::123456123456:oidc-provider/acme-prod.auth.usegrant.dev"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "acme-prod.auth.usegrant.dev:sub": "Z3bXuT3jaHG-ZF9LYt2hmNGi3iAJlUv9"
+          "acme-prod.auth.usegrant.dev:aud": "sts.amazonaws.com"
+        }
+      }
+    }
+  ]
+}
+```
+
+Replace `acme-prod.auth.usegrant.dev` with the url of your project or the custom domain you set up.
+And also replace the subject with the one from your client.
+
 ## Step 3: Assume Role with AWS CLI
 
 Run the following command to assume the role:
@@ -43,6 +76,29 @@ aws sts assume-role-with-web-identity \
     --role-arn <ROLE_ARN_YOU_CREATED> \
     --role-session-name <YOUR_SESSION_NAME> \
     --web-identity-token <THE_ACCESS_TOKEN_FROM_USEGRANT>
+```
+
+This would return the temporary security credentials with AccessKeyId, SecretAccessKey and SessionToken.
+You can use these credentials to sign calls to AWS service API operations.
+
+For example,
+
+```json
+{
+    "SubjectFromWebIdentityToken": "amzn1.account.AF6RHO7KZU5XRVQJGXK6HB56KR2A"
+    "Audience": "client.5498841531868486423.1548@apps.example.com",
+    "AssumedRoleUser": {
+        "Arn": "arn:aws:sts::123456789012:assumed-role/FederatedWebIdentityRole/app1",
+        "AssumedRoleId": "AROACLKWSDQRAOEXAMPLE:app1"
+    }
+    "Credentials": {
+        "AccessKeyId": "AKIAIOSFODNN7EXAMPLE",
+        "SecretAccessKey": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYzEXAMPLEKEY",
+        "SessionToken": "AQoEXAMPLEH4aoAH0gNCAPyJxz4BlCFFxWNE1OPTgk5TthT+FvwqnKwRcOIfrRh3c/LTo6UDdyJwOOvEVPvLXCrrrUtdnniCEXAMPLE/IvU1dYUg2RVAJBanLiHb4IgRmpRV3zrkuWJOgQs8IZZaIv2BXIa2R4OlgkBN9bkUDNCJiBeb/AXlzBBko7b15fjrBs2+cTQtpZ3CYWFXG8C5zqx37wnOE49mRl/+OtkIKGO7fAE",
+        "Expiration": "2020-05-19T18:06:10+00:00"
+    },
+    "Provider": "www.amazon.com"
+}
 ```
 
 By default, the temporary security credentials created by AssumeRoleWithWebIdentity last for one hour.
