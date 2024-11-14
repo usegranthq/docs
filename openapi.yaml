@@ -148,8 +148,8 @@ paths:
 
   /v1/projects/{projectId}/clients/{clientId}/tokens:
     post:
-      summary: Create a token
-      description: Create a new token for a client.
+      summary: Create access token
+      description: Create a new access token for a client.
       operationId: createToken
       tags:
         - AccessTokens

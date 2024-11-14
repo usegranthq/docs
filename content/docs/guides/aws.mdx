@@ -1,6 +1,53 @@
 ---
 title: AWS Assume Role
-description: Guide to assume role from AWS using OpenId Connect and Web Identity Federation
+description: Guide to assume roles in AWS using OpenID Connect and Web Identity Federation
 ---
 
-Learn how to authenticate with AWS using Web Identity Federation.
+This guide will walk you through the process of authenticating with AWS services using Web Identity Federation. By following these steps, you can obtain temporary security credentials without embedding long-term credentials in your applications.
+
+The temporary security credentials returned by this API consist of an access key ID, a secret access key, and a security token.
+Applications can use these temporary security credentials to sign calls to AWS service API operations.
+
+## Prerequisites
+
+- An active client in useGrant.dev
+- An AWS account
+- AWS CLI installed on your system
+
+## Step 1: Set Up an OpenID Connect Provider in AWS
+
+1. Log in to the AWS Management Console and navigate to the IAM service.
+2. In the navigation pane, select "Identity Providers".
+3. Click on "Create Provider".
+4. Select "OpenID Connect" as the provider type.
+5. Fill in the required details and click "Create Provider".
+   Ensure that the audience matches the one used to create the client in useGrant.dev.
+
+For AWS, the audience is typically `sts.amazonaws.com`.
+Refer to the [AWS documentation](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc.html) for more details and customization options.
+
+## Step 2: Create a Role in AWS
+
+1. Access the AWS Management Console and go to the IAM service.
+2. In the navigation pane, click on "Roles".
+3. Select "Create Role".
+4. Choose "Web Identity" as the trusted entity.
+5. Select the provider you set up in the previous step and choose the appropriate audience.
+
+## Step 3: Assume Role with AWS CLI
+
+Run the following command to assume the role:
+
+```bash
+aws sts assume-role-with-web-identity \
+    --role-arn <ROLE_ARN_YOU_CREATED> \
+    --role-session-name <YOUR_SESSION_NAME> \
+    --web-identity-token <THE_ACCESS_TOKEN_FROM_USEGRANT>
+```
+
+By default, the temporary security credentials created by AssumeRoleWithWebIdentity last for one hour.
+However, you can use the optional DurationSeconds parameter to specify the duration of your session.
+You can provide a value from 900 seconds (15 minutes) up to the maximum session duration setting for the role.
+This setting can have a value from 1 hour to 12 hours.
+
+Learn more about the [AssumeRoleWithWebIdentity API](https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRoleWithWebIdentity.html) from the official AWS documentation.
