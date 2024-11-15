@@ -1,0 +1,167 @@
+---
+title: GCP Service Account
+description: Guide to obtain temporary security credentials from Google Cloud STS
+---
+
+This guide will walk you through the process of authenticating with GCP services using Workload Identity Federation.
+By following these steps, you can obtain temporary security credentials without embedding long-term credentials in your applications.
+
+The temporary security credentials returned by this API consist of an access token.
+Applications can use this access token to sign calls to GCP service API operations.
+
+## Prerequisites
+
+- An active client in useGrant.dev
+- A GCP account
+- [gcloud cli](https://cloud.google.com/sdk/docs/install) installed on your system
+
+Before proceeding, you must plan your security strategy to ensure that access tokens are only allocated in a predictable way.
+To control how your cloud provider issues access tokens, you must define at least one condition, so that untrusted repositories can’t request access tokens for your cloud resources.
+
+## Step 1: Create a Workload Identity Pool
+
+1. Log in to the GCP Console and navigate to the IAM and Admin section.
+2. In the navigation pane, select "Workload Identity Federation".
+3. Click on "Create Pool".
+4. Create an identity pool and add a provider to the pool.
+5. Configure the provider as follows:
+   - Provider type: `OpenID Connect`
+   - Issuer URL: Enter the URL of your project or the custom domain you set up.
+   - Skip JWK file (JSON) since it's unavailable in a public URL.
+   - Allowed audiences: Expected audience of ID tokens. For example, `sts.googlecloud.com`.
+     This audience should match the one provided while creating the client in useGrant.
+6. Create attribute mapping: Map the `google.subject` attribute to the `assertion.sub` claim in the client.
+   Add additional attributes if needed. For example, `attribute.audience` can be used to specify the audience of the token.
+
+Refer to the [GCP documentation on Workload Identity Federation](https://cloud.google.com/iam/docs/workload-identity-federation-with-other-providers) for more details and customization options.
+
+## Step 2: Create a Service Account in GCP
+
+Creating the Workload Identity Pool and Workload Identity Provider defines the authentication into Google Cloud.
+At this point, you can authenticate from service into Google Cloud.
+However, you might not have direct permissions on Google Cloud (authorization).
+
+To grant permissions, you need to create a service account in GCP and grant it the necessary permissions.
+
+1. Access the GCP Console and go to the IAM and Admin section.
+2. In the navigation pane, click on "Service accounts".
+3. Click on "Create Service Account".
+4. Grant the Workload Identity User role `roles/iam.workloadIdentityUser` to the service account and
+   attach additional roles if needed.
+
+Refer to the [GCP documentation to create a service account](https://cloud.google.com/iam/docs/workload-identity-federation-with-other-providers?#impersonation) for more details.
+
+## Step 3: Attach the Workload Identity Pool to the Service Account
+
+1. In the GCP Console, go to the IAM and Admin section.
+2. In the navigation pane, click on "Workload Identity Federation".
+3. Select the workload identity pool you created in the previous step and select `Grant access`.
+4. In the Grant access to service account dialog, select `Grant access using service account impersonation`.
+   - Select the service account you created in the previous step.
+   - Select the principal you created in useGrant.dev. Map the `subject` and `audience` attributes.
+5. Click on Save, this will open a popup, where you can download the configuration file.
+
+The configuration file will be in the following format:
+
+```json title="gcp-config.json"
+{
+  "universe_domain": "googleapis.com",
+  "type": "external_account",
+  "audience": "//iam.googleapis.com/projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/POOL_ID/providers/PROVIDER_ID",
+  "subject_token_type": "urn:ietf:params:oauth:token-type:jwt",
+  "token_url": "https://sts.googleapis.com/v1/token",
+  "service_account_impersonation_url": "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/SERVICE_ACCOUNT_EMAIL:generateAccessToken",
+  "credential_source": {
+    "file": "token.jwt",
+    "format": {
+      "type": "text"
+    }
+  }
+}
+```
+
+## Step 4: Retrieve temporary credentials
+
+Get the access token from the client in useGrant.dev and save it to a file(token.jwt) relative to the configuration file.
+
+Then, use the following command to authenticate with Google Workload Identity Federation:
+
+```bash
+gcloud auth login --cred-file=gcp-config.json
+```
+
+To obtain the access token, run the following command:
+
+```bash
+gcloud auth print-access-token
+```
+
+To test the login, run the following command to print the list of projects:
+
+```bash
+gcloud projects list
+```
+
+Note: Ensure the service account has the `Browser` role assigned. Without this role, the list of projects may be empty or an error might occur.
+
+### Alternative: Using CURL
+
+Get the access token from the client in useGrant.dev and export it as an environment variable.
+
+```bash
+export USEGRANT_OIDC_TOKEN=$(curl -s "https://sdk.usegrant.dev//v1/projects/{projectId}/clients/{clientId}/tokens" | jq -r '.access_token')
+```
+
+Get temporary credentials using the ID token:
+
+```bash
+PAYLOAD="$(cat <<EOF
+{
+  "audience": "//iam.googleapis.com/projects/241656937750/locations/global/workloadIdentityPools/POOL_ID/providers/PROVIDER_ID",
+  "grantType": "urn:ietf:params:oauth:grant-type:token-exchange",
+  "requestedTokenType": "urn:ietf:params:oauth:token-type:access_token",
+  "scope": "https://www.googleapis.com/auth/cloud-platform",
+  "subjectTokenType": "urn:ietf:params:oauth:token-type:jwt",
+  "subjectToken": "${USEGRANT_OIDC_TOKEN}"
+}
+EOF
+)"
+```
+
+```bash
+FEDERATED_TOKEN="$(curl --fail "https://sts.googleapis.com/v1/token" \
+  --header "Accept: application/json" \
+  --header "Content-Type: application/json" \
+  --data "${PAYLOAD}" \
+  | jq -r '.access_token'
+)"
+```
+
+Where:
+
+- `PROJECT_NUMBER` is the number of your GCP project
+- `POOL_ID` is the ID of the workload identity pool
+- `PROVIDER_ID` is the ID of the workload identity provider
+- `USEGRANT_OIDC_TOKEN` is the access token obtained from the client in useGrant.dev
+
+You can then use the resulting federated token to impersonate the service account created in the previous section:
+
+```bash
+ACCESS_TOKEN="$(curl --fail-with-body "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/SERVICE_ACCOUNT_EMAIL:generateAccessToken" \
+  --header "Accept: application/json" \
+  --header "Content-Type: application/json" \
+  --header "Authorization: Bearer ${FEDERATED_TOKEN}" \
+  --data '{"scope": ["https://www.googleapis.com/auth/cloud-platform"]}' \
+  | jq -r '.accessToken'
+)"
+```
+
+Where:
+
+- `SERVICE_ACCOUNT_EMAIL` is the email of the service account created in the previous section
+- `FEDERATED_TOKEN` is the federated token obtained in the previous step
+
+The result is a Google Cloud OAuth 2.0 access token,
+which you can use to authenticate to most Google Cloud APIs and services when used as a bearer token.
+
+You can also pass this value to the `gcloud CLI` by setting the environment variable `CLOUDSDK_AUTH_ACCESS_TOKEN`.
