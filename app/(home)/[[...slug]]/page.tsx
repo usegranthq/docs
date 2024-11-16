@@ -36,5 +36,6 @@ export async function generateMetadata(props: { params: Promise<{ slug?: string[
   return metadataImage.withImage(page.slugs, {
     title: page.data.title,
     description: page.data.description,
+    keywords: page.data.keywords,
   });
 }
