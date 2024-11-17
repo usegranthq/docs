@@ -20,7 +20,7 @@ export default {
   },
   presets: [
     createPreset({
-      preset: 'dusk',
+      preset: 'black',
     }),
   ],
 };

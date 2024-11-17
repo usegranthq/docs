@@ -4,9 +4,12 @@ import type { ReactNode } from 'react';
 import { baseOptions } from '@/app/layout.config';
 import { source } from '@/lib/source';
 
+import Pattern from './Pattern';
+
 export default function Layout({ children }: { children: ReactNode }) {
   return (
     <DocsLayout tree={source.pageTree} {...baseOptions}>
+      <Pattern />
       {children}
     </DocsLayout>
   );
