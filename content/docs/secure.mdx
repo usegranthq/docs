@@ -9,16 +9,20 @@ Your service implementations and use cases remain completely private with you, o
 Information we collect: your signup email to authenticate you to the app.
 We do not collect or store any data about your services or intended usage patterns.
 
-Logs: we log only the essential system logs (never any user data of any kind) to ensure the app is running as expected.
-These logs are wiped after a short period of time (not exceeding 30 days).
+Logs: We only log essential system information (never any user data) to ensure the app operates as expected.
+These logs are retained for a short period, with most being cleared within 24 hours and none kept for more than 30 days.
+
+We also issue private keys for your project, which are used to sign the tokens.
+These private keys are never exposed to the public and are only used to sign the tokens.
+Also, these private keys can be configured to be rotated every 24 hours.
 
 This ensures maximum privacy and reduces the risk of sensitive information being exposed.
 By limiting the data we store, we minimize the potential impact of any data breaches.
 
 ### Breach Resistant
 
-These measures make our system breach resistant.
-Even in the unlikely event of a breach, there is no actionable information at risk. Only you use our services,
+These measures make our system breach resistant. We make sure all the best practices are followed to ensure the security of the system.
+But, even in the unlikely event of a breach, there is no actionable information at risk. Only you use our services,
 not the other way around.
 
 During the authentication process, your service will contact the following endpoints to verify the token if it signed by us.
