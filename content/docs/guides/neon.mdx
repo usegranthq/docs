@@ -1,0 +1,40 @@
+---
+title: Neon DB
+description: Authenticate with NeonDB api using JSON Web Tokens
+---
+
+You can configure UseGrant as a auth provider in NeonDB and use the generated access token
+to authenticate with the NeonDB api.
+
+Follow the steps below to configure UseGrant as a auth provider in NeonDB.
+
+1. Go to the NeonDB console and navigate to the "Settings" page.
+2. Click on the `Authorize` tab.
+3. Click on the `Setup authentication provider` button.
+4. Enter the jwk url of your UseGrant application. If you have a custom domain,
+   you can also use that domain instead of the default one.
+   - Example: `https://MY_PROJECT_URL_ID.usegrant.dev/.well-known/jwks`
+5. Add the audience of your UseGrant application.
+   - Example: `api.neon.tech` or whatever you set in the `audience` field
+     while creating the client.
+6. Click on the `Save` button.
+
+Once you have completed the steps above, you should be able to authenticate with the NeonDB api using the generated access token.
+
+Follow the [NeonDB docs](https://neon.tech/docs/guides/neon-authorize) for more information on
+how to use the NeonDB api. A typical example would look like this:
+
+```typescript
+import { neon } from '@neondatabase/serverless';
+
+const ugClient = new UseGrant({
+  clientId: process.env.USEGRANT_CLIENT_ID,
+  token: process.env.USEGRANT_API_TOKEN,
+});
+
+const sql = neon(process.env.DATABASE_AUTHENTICATED_URL, {
+  authToken: ugClient.getJWT(),
+});
+
+await sql(`select * from todos`);
+```
