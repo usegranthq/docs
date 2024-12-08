@@ -33,7 +33,10 @@ const ugClient = new UseGrant({
 });
 
 const sql = neon(process.env.DATABASE_AUTHENTICATED_URL, {
-  authToken: ugClient.getJWT(),
+  authToken: async () => {
+    const token = await ugClient.getJWT();
+    return token;
+  },
 });
 
 await sql(`select * from todos`);
