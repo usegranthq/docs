@@ -111,3 +111,51 @@ You can provide a value from 900 seconds (15 minutes) up to the maximum session 
 This setting can have a value from 1 hour to 12 hours.
 
 Learn more about the [AssumeRoleWithWebIdentity API](https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRoleWithWebIdentity.html) from the official AWS documentation.
+
+## Using CloudFormation
+
+You can also use CloudFormation to create the role and the trust policy instead of manually creating
+them as shown in the previous steps.
+
+Example CloudFormation template:
+
+```yaml
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Configure OIDC Provider and IAM Role for Web Identity Federation
+
+Resources:
+  OIDCProvider:
+    Type: AWS::IAM::OIDCProvider
+    Properties:
+      Url: https://<PROJECT_URL_ID>.usegrant.dev
+      ClientIdList:
+        - sts.amazonaws.com
+
+  IAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: OIDCRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: !Ref OIDCProvider
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              ForAnyValue:StringEquals:
+                <PROJECT_URL_ID>.usegrant.dev:sub: <SUBJECT_FROM_CLIENT>
+                <PROJECT_URL_ID>.usegrant.dev:aud: sts.amazonaws.com
+      ManagedPolicyArns: # replace with the policy you want to attach to the role
+        - arn:aws:iam::aws:policy/AdministratorAccess
+```
+
+Copy the template and replace the placeholders like `PROJECT_URL_ID`, `SUBJECT_FROM_CLIENT`
+with your own values.
+
+- Audience is typically `sts.amazonaws.com`. But you can also use the audience you used
+  while creating the project in useGrant.dev.
+- `SUBJECT_FROM_CLIENT` is the subject from the client, this will be generated
+  after you create the client.
+
+If you have a custom domain set up, replace the `Url` with your custom domain.
