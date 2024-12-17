@@ -1,0 +1,182 @@
+---
+title: Alibaba Cloud Assume Role
+description: Guide to assume roles in Alibaba Cloud using OpenID Connect and Web Identity Federation
+keywords:
+  - Client Credentials grant with Alibaba Cloud
+  - Assume Role with Alibaba Cloud
+  - Temporary Security Credentials with Alibaba Cloud
+---
+
+This guide will walk you through the process of authenticating with Alibaba Cloud services using Identity Federation.
+By following these steps, you can obtain temporary security credentials without embedding long-term credentials in your applications.
+
+The temporary security credentials returned by this API consist of an access key ID, a secret access key, and a security token.
+Applications can use these temporary security credentials to sign calls to Alibaba Cloud service API operations.
+
+## Prerequisites
+
+- An active client in useGrant.dev
+- An Alibaba Cloud account
+- Alibaba Cloud CLI installed on your system
+
+Before proceeding, you must plan your security strategy to ensure that access tokens are only allocated in a predictable way.
+To control how your cloud provider issues access tokens, you must define at least one condition, so that untrusted entities can’t request access tokens for your cloud resources.
+
+## Step 1: Set Up an OpenID Connect Provider in Alibaba Cloud
+
+1. Log in to the Alibaba Cloud Management Console and navigate to the RAM service.
+2. In the sidebar, select "Integrations -> SSO".
+3. Select "OIDC -> IDP" under "Role based SSO".
+4. Fill in the required details and "Create".
+
+For the issuer URL use the url of your project or the custom domain you set up.
+
+Ensure that the audience matches the one used to create the client in useGrant.dev.
+For Alibaba Cloud, the audience can be `ram.aliyuncs.com` or the audience you used while creating the client in useGrant.dev.
+
+Refer to the [Alibaba Cloud documentation](https://www.alibabacloud.com/help/en/ram/user-guide/manage-an-oidc-idp) for more details and options.
+
+## Step 2: Create a Role in Alibaba Cloud
+
+1. Log in to the Alibaba Cloud Management Console and navigate to the RAM service.
+2. In the sidebar, select "Identities -> Roles".
+3. On the Create Role page, select IdP in the Select Trusted Entity section and click Next.
+4. Specify the RAM Role Name and Note parameters.
+5. Select OIDC for the IdP Type parameter.
+6. Select a trusted IdP and specify the conditions.
+   - Audience: Select the audience you used while creating the idp in previous step.
+   - Subject: Enter the subject generated while creating the client in useGrant
+7. Click Create.
+
+Refer to the [Alibaba Cloud documentation](https://www.alibabacloud.com/help/en/ram/user-guide/create-a-ram-role-for-a-trusted-idp#section-mra-74d-14w) for more details and options.
+
+## Step 3: Assume Role with Alibaba Cloud CLI
+
+Run the following command to assume the role:
+
+```bash
+aliyun sts AssumeRoleWithOIDC \
+  --region cn-beijing \
+  --OIDCProviderArn <OIDC_PROVIDER_ARN> \
+  --RoleArn <ROLE_ARN_YOU_CREATED> \
+  --OIDCToken <THE_ACCESS_TOKEN_FROM_USEGRANT> \
+  --RoleSessionName <YOUR_SESSION_NAME>
+```
+
+This would return the temporary security credentials with AccessKeyId, SecretAccessKey and SessionToken.
+You can use these credentials to sign calls to Alibaba Cloud service API operations.
+
+<Callout>
+  Alibaba expects the JWT to have audience as an array and the token header type to be `jwt` instead of `at+jwt`.
+  Pass the following options in the client settings while creating the access token.
+  - `audienceAsArray`
+  - `useJwtType`
+
+to generate the JWT that Alibaba expects.
+
+</Callout>
+
+For example,
+
+```json
+{
+  "RequestId": "3D57EAD2-8723-1F26-B69C-F8707D8B565D",
+  "OIDCTokenInfo": {
+    "Subject": "KryrkIdjylZb7agUgCEf****",
+    "Issuer": "https://dev-xxxxxx.okta.com",
+    "ClientIds": "496271242565057****",
+    "ExpirationTime": "2021-10-20T04:27:09Z",
+    "IssuanceTime": "2021-10-20T03:27:09Z",
+    "VerificationInfo": "Success"
+  },
+  "AssumedRoleUser": {
+    "AssumedRoleId": "33157794895460****",
+    "Arn": "acs:ram::113511544585****:role/testoidc/TestOidcAssumedRoleSession"
+  },
+  "Credentials": {
+    "SecurityToken": "CAIShwJ1q6Ft5B2yfSjIr5bSEsj4g7BihPWGWHz****",
+    "Expiration": "2021-10-20T04:27:09Z",
+    "AccessKeySecret": "CVwjCkNzTMupZ8NbTCxCBRq3K16jtcWFTJAyBEv2****",
+    "AccessKeyId": "STS.NUgYrLnoC37mZZCNnAbez****"
+  }
+}
+```
+
+You can also interactively test the API on [Alibaba OpenApi Explorer](https://api.alibabacloud.com/api/Sts/2015-04-01/AssumeRoleWithOIDC).
+
+By default, the temporary security credentials created by AssumeRoleWithOIDC last for one hour.
+However, you can use the optional DurationSeconds parameter to specify the duration of your session.
+You can provide a value from 900 seconds (15 minutes) up to the maximum session duration setting for the role.
+This setting can have a value from 1 hour to 12 hours.
+
+Learn more about the [AssumeRoleWithOIDC API](https://www.alibabacloud.com/help/en/ram/developer-reference/api-sts-2015-04-01-assumerolewithoidc) from the official Alibaba Cloud documentation.
+
+## Using ROS Template
+
+You can also use ROS(Resource Orchestration Service) to create the role and the trust policy instead of manually creating
+them as shown in the previous steps.
+
+ROS doesn't support creating OIDC providers using JSON/YAML format use the following
+terraformtemplate to create the OIDC provider.
+
+Example ROS template:
+
+```terraform
+data "alicloud_account" "current" {}
+
+resource "alicloud_ims_oidc_provider" "idp" {
+  issuer_url          = "<PROVIDER_URL>"
+  issuance_limit_time = "12"
+  oidc_provider_name  = "<PROVIDER_NAME>"
+  client_ids          = ["<AUDIENCE>"]
+  fingerprints        = ["<FINGERPRINT_OF_YOUR_PROJECT_DOMAIN>"]
+}
+
+resource "alicloud_ram_role" "role" {
+  name = "OIDCRole"
+
+  document = jsonencode({
+    Version   = "1"
+    Statement = [
+      {
+        Action   = "sts:AssumeRole"
+        Condition = {
+          StringEquals = {
+            "oidc:aud" = ["<AUDIENCE>"]
+            "oidc:iss" = "<PROVIDER_URL>"
+            "oidc:sub" = "<SUBJECT_FROM_CLIENT>"
+          }
+        }
+        Effect    = "Allow"
+        Principal = {
+          Federated = [
+            "acs:ram::${data.alicloud_account.current.id}:oidc-provider/${alicloud_ims_oidc_provider.idp.id}"
+          ]
+        }
+      }
+    ]
+  })
+}
+
+resource "alicloud_ram_role_policy_attachment" "attach" {
+  policy_name = "AdministratorAccess" # Replace with the policy you want to attach
+  policy_type = "System"
+  role_name   = alicloud_ram_role.role.name
+}
+```
+
+<Callout>
+  You can also use the `ALIYUN::ROS::Stack` to inline the terraform template inside your YAML/JSON ROS template.
+</Callout>
+
+Copy the template and replace the placeholders like `PROVIDER_NAME`, `AUDIENCE`, `PROVIDER_URL`, `SUBJECT_FROM_CLIENT`
+with your own values.
+
+- `PROVIDER_NAME` is the name you want to give to the provider.
+- `AUDIENCE` can be `sts.aliyuncs.com` or `ram.aliyuncs.com`. But you can also whatever the one you used
+  while creating the client in useGrant.dev.
+- `PROVIDER_URL` is the url of your project or the custom domain you set up.
+- `SUBJECT_FROM_CLIENT` is the subject from the client, this will be generated
+  after you create the client.
+- Replace the `Fingerprint` with the fingerprint of your project. You can retrieve the fingerprint
+  from the project domain section.
