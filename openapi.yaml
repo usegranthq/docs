@@ -156,6 +156,12 @@ paths:
       parameters:
         - $ref: '#/components/parameters/ProjectId'
         - $ref: '#/components/parameters/ClientId'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTokenRequest'
       responses:
         201:
           description: Token created successfully.
@@ -244,6 +250,23 @@ components:
       required:
         - name
         - description
+
+    CreateTokenRequest:
+      type: object
+      description: Payload for creating a new access token.
+      properties:
+        expiresIn:
+          type: string
+          description: The expiration date and time of the access token in seconds. Cannot be more than 48 hours. The shorter the duration, the more secure it is.
+        useJwtType:
+          type: boolean
+          description: When true, the access token header type will be set to `jwt` instead of `at+jwt`.
+        audienceAsArray:
+          type: boolean
+          description: When true, the audience will be set as an array instead of a string.
+        forceDefaultDomain:
+          type: boolean
+          description: When true, the default domain will be used in the issuer field.
 
     Project:
       type: object
