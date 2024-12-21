@@ -12,80 +12,80 @@ servers:
   - url: https://sdk.usegrant.dev
 
 paths:
-  /v1/projects:
+  /v1/providers:
     post:
-      summary: Create a project
-      description: Create a new project.
-      operationId: createProject
+      summary: Create a provider
+      description: Create a new provider.
+      operationId: createProvider
       tags:
-        - Projects
+        - Providers
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateProjectRequest'
+              $ref: '#/components/schemas/CreateProviderRequest'
             examples:
               default:
-                $ref: '#/components/examples/CreateProjectRequestExample'
+                $ref: '#/components/examples/CreateProviderRequestExample'
       responses:
         201:
-          description: Project created successfully.
+          description: Provider created successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Project'
+                $ref: '#/components/schemas/Provider'
               examples:
                 default:
-                  $ref: '#/components/examples/CreateProjectResponseExample'
+                  $ref: '#/components/examples/CreateProviderResponseExample'
         allErrors:
           $ref: '#/components/responses/AllErrorResponses'
 
-  /v1/projects/{projectId}:
+  /v1/providers/{providerId}:
     get:
-      summary: Get a project
-      description: Retrieve a project by its ID.
-      operationId: getProject
+      summary: Get a provider
+      description: Retrieve a provider by its ID.
+      operationId: getProvider
       tags:
-        - Projects
+        - Providers
       parameters:
-        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/ProviderId'
       responses:
         200:
-          description: Project retrieved successfully.
+          description: Provider retrieved successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Project'
+                $ref: '#/components/schemas/Provider'
               examples:
                 default:
-                  $ref: '#/components/examples/GetProjectResponseExample'
+                  $ref: '#/components/examples/GetProviderResponseExample'
         allErrors:
           $ref: '#/components/responses/AllErrorResponses'
 
     delete:
-      summary: Delete a project
-      description: Delete a project by its ID.
-      operationId: deleteProject
+      summary: Delete a provider
+      description: Delete a provider by its ID.
+      operationId: deleteProvider
       tags:
-        - Projects
+        - Providers
       parameters:
-        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/ProviderId'
       responses:
         204:
-          description: Project deleted successfully.
+          description: Provider deleted successfully.
         allErrors:
           $ref: '#/components/responses/AllErrorResponses'
 
-  /v1/projects/{projectId}/clients:
+  /v1/providers/{providerId}/clients:
     post:
       summary: Create a client
-      description: Create a new client within a specified project.
+      description: Create a new client within a specified provider.
       operationId: createClient
       tags:
         - Clients
       parameters:
-        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/ProviderId'
       requestBody:
         required: true
         content:
@@ -108,7 +108,7 @@ paths:
         allErrors:
           $ref: '#/components/responses/AllErrorResponses'
 
-  /v1/projects/{projectId}/clients/{clientId}:
+  /v1/providers/{providerId}/clients/{clientId}:
     get:
       summary: Get a client
       description: Retrieve a client by its ID.
@@ -116,7 +116,7 @@ paths:
       tags:
         - Clients
       parameters:
-        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/ProviderId'
         - $ref: '#/components/parameters/ClientId'
       responses:
         200:
@@ -138,7 +138,7 @@ paths:
       tags:
         - Clients
       parameters:
-        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/ProviderId'
         - $ref: '#/components/parameters/ClientId'
       responses:
         204:
@@ -146,7 +146,7 @@ paths:
         allErrors:
           $ref: '#/components/responses/AllErrorResponses'
 
-  /v1/projects/{projectId}/clients/{clientId}/tokens:
+  /v1/providers/{providerId}/clients/{clientId}/tokens:
     post:
       summary: Create access token
       description: Create a new access token for a client.
@@ -154,7 +154,7 @@ paths:
       tags:
         - AccessTokens
       parameters:
-        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/ProviderId'
         - $ref: '#/components/parameters/ClientId'
       requestBody:
         required: false
@@ -183,12 +183,12 @@ components:
       bearerFormat: ApiKey
 
   parameters:
-    ProjectId:
-      name: projectId
+    ProviderId:
+      name: providerId
       in: path
       required: true
       schema:
-        $ref: '#/components/schemas/ProjectId'
+        $ref: '#/components/schemas/ProviderId'
     ClientId:
       name: clientId
       in: path
@@ -197,19 +197,19 @@ components:
         $ref: '#/components/schemas/ClientId'
 
   schemas:
-    ProjectId:
+    ProviderId:
       type: string
-      description: Unique identifier for a project.
+      description: Unique identifier for a provider.
       example: 9b2e4d7a-8c3f-4b2a-9a1e-2d3c4e5f6a7b
 
-    ProjectName:
+    ProviderName:
       type: string
-      description: Name of the project.
+      description: Name of the provider.
       example: Acme Auth App
 
-    ProjectDescription:
+    ProviderDescription:
       type: string
-      description: Description of the project.
+      description: Description of the provider.
       example: Acme Auth App Description
 
     ClientId:
@@ -227,14 +227,14 @@ components:
       description: Description of the client.
       example: Client for Acme Auth App
 
-    CreateProjectRequest:
+    CreateProviderRequest:
       type: object
-      description: Payload for creating a new project.
+      description: Payload for creating a new provider.
       properties:
         name:
-          $ref: '#/components/schemas/ProjectName'
+          $ref: '#/components/schemas/ProviderName'
         description:
-          $ref: '#/components/schemas/ProjectDescription'
+          $ref: '#/components/schemas/ProviderDescription'
       required:
         - name
         - description
@@ -268,15 +268,15 @@ components:
           type: boolean
           description: When true, the default domain will be used in the issuer field.
 
-    Project:
+    Provider:
       type: object
       properties:
         id:
-          $ref: '#/components/schemas/ProjectId'
+          $ref: '#/components/schemas/ProviderId'
         name:
-          $ref: '#/components/schemas/ProjectName'
+          $ref: '#/components/schemas/ProviderName'
         description:
-          $ref: '#/components/schemas/ProjectDescription'
+          $ref: '#/components/schemas/ProviderDescription'
       required:
         - id
         - name
@@ -313,25 +313,25 @@ components:
         - expiresAt
         - type
   examples:
-    CreateProjectRequestExample:
-      summary: Example request for creating a project.
+    CreateProviderRequestExample:
+      summary: Example request for creating a provider.
       value:
         name: Acme App
-        description: Project for Acme application.
+        description: Provider for Acme application.
 
-    CreateProjectResponseExample:
-      summary: Example response for created project.
+    CreateProviderResponseExample:
+      summary: Example response for created provider.
       value:
         id: 9b2e4d7a-8c3f-4b2a-9a1e-2d3c4e5f6a7b
         name: Acme App
-        description: Project for Acme application.
+        description: Provider for Acme application.
 
-    GetProjectResponseExample:
-      summary: Example response for retrieving a project.
+    GetProviderResponseExample:
+      summary: Example response for retrieving a provider.
       value:
         id: 9b2e4d7a-8c3f-4b2a-9a1e-2d3c4e5f6a7b
         name: Acme App
-        description: Project for Acme application.
+        description: Provider for Acme application.
 
     CreateClientRequestExample:
       summary: Example request for creating a client.
@@ -383,8 +383,8 @@ components:
           description: Internal server error.
 
 tags:
-  - name: Projects
-    description: Project management in UseGrant.
+  - name: Providers
+    description: Providers that interact with UseGrant services.
   - name: Clients
     description: Client entities that interact with UseGrant services.
   - name: AccessTokens
