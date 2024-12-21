@@ -113,7 +113,7 @@ Note: Ensure the service account has the `Browser` role assigned. Without this r
 Get the access token from the client in useGrant.dev and export it as an environment variable.
 
 ```bash
-export USEGRANT_OIDC_TOKEN=$(curl -s "https://sdk.usegrant.dev//v1/projects/{projectId}/clients/{clientId}/tokens" | jq -r '.access_token')
+export USEGRANT_OIDC_TOKEN=$(curl -s "https://sdk.usegrant.dev/v1/providers/{providerId}/clients/{clientId}/tokens" | jq -r '.access_token')
 ```
 
 Get temporary credentials using the ID token:

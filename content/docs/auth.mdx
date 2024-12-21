@@ -31,7 +31,7 @@ If/When the token is expired, you will receive a `401 Unauthorized` response.
 Here is an example of how to include the Bearer token in a `curl` request to create a project:
 
 ```bash
-curl -X POST https://sdk.usegrant.com/v1/projects \
+curl -X POST https://sdk.usegrant.com/v1/providers \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{"name": "My Project", "description": "A project for testing"}'
