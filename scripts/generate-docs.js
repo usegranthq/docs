@@ -1,5 +1,5 @@
-import * as OpenAPI from 'fumadocs-openapi';
 import { rimrafSync } from 'rimraf';
+import { generateFiles } from 'fumadocs-openapi';
 
 const out = './content/docs/api';
 
@@ -10,7 +10,7 @@ rimrafSync(out, {
   },
 });
 
-void OpenAPI.generateFiles({
+void generateFiles({
   // input files
   input: ['./openapi.yaml'],
   output: out,
