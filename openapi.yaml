@@ -14,7 +14,7 @@ servers:
 paths:
   /v1/providers:
     post:
-      summary: Create a provider
+      summary: Create provider
       description: Create a new provider.
       operationId: createProvider
       tags:
@@ -29,6 +29,7 @@ paths:
               default:
                 $ref: '#/components/examples/CreateProviderRequestExample'
       responses:
+        $ref: '#/components/responses/CommonErrors'
         201:
           description: Provider created successfully.
           content:
@@ -38,12 +39,10 @@ paths:
               examples:
                 default:
                   $ref: '#/components/examples/CreateProviderResponseExample'
-        allErrors:
-          $ref: '#/components/responses/AllErrorResponses'
 
   /v1/providers/{providerId}:
     get:
-      summary: Get a provider
+      summary: Get provider
       description: Retrieve a provider by its ID.
       operationId: getProvider
       tags:
@@ -51,6 +50,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/ProviderId'
       responses:
+        $ref: '#/components/responses/CommonErrors'
         200:
           description: Provider retrieved successfully.
           content:
@@ -60,11 +60,9 @@ paths:
               examples:
                 default:
                   $ref: '#/components/examples/GetProviderResponseExample'
-        allErrors:
-          $ref: '#/components/responses/AllErrorResponses'
 
     delete:
-      summary: Delete a provider
+      summary: Delete provider
       description: Delete a provider by its ID.
       operationId: deleteProvider
       tags:
@@ -72,14 +70,13 @@ paths:
       parameters:
         - $ref: '#/components/parameters/ProviderId'
       responses:
+        $ref: '#/components/responses/CommonErrors'
         204:
           description: Provider deleted successfully.
-        allErrors:
-          $ref: '#/components/responses/AllErrorResponses'
 
   /v1/providers/{providerId}/clients:
     post:
-      summary: Create a client
+      summary: Create client
       description: Create a new client within a specified provider.
       operationId: createClient
       tags:
@@ -96,6 +93,7 @@ paths:
               default:
                 $ref: '#/components/examples/CreateClientRequestExample'
       responses:
+        $ref: '#/components/responses/CommonErrors'
         201:
           description: Client created successfully.
           content:
@@ -105,12 +103,10 @@ paths:
               examples:
                 default:
                   $ref: '#/components/examples/CreateClientResponseExample'
-        allErrors:
-          $ref: '#/components/responses/AllErrorResponses'
 
   /v1/providers/{providerId}/clients/{clientId}:
     get:
-      summary: Get a client
+      summary: Get client
       description: Retrieve a client by its ID.
       operationId: getClient
       tags:
@@ -119,6 +115,7 @@ paths:
         - $ref: '#/components/parameters/ProviderId'
         - $ref: '#/components/parameters/ClientId'
       responses:
+        $ref: '#/components/responses/CommonErrors'
         200:
           description: Client retrieved successfully.
           content:
@@ -128,11 +125,9 @@ paths:
               examples:
                 default:
                   $ref: '#/components/examples/GetClientResponseExample'
-        allErrors:
-          $ref: '#/components/responses/AllErrorResponses'
 
     delete:
-      summary: Delete a client
+      summary: Delete client
       description: Delete a client by its ID.
       operationId: deleteClient
       tags:
@@ -141,10 +136,9 @@ paths:
         - $ref: '#/components/parameters/ProviderId'
         - $ref: '#/components/parameters/ClientId'
       responses:
+        $ref: '#/components/responses/CommonErrors'
         204:
           description: Client deleted successfully.
-        allErrors:
-          $ref: '#/components/responses/AllErrorResponses'
 
   /v1/providers/{providerId}/clients/{clientId}/tokens:
     post:
@@ -163,6 +157,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CreateTokenRequest'
       responses:
+        $ref: '#/components/responses/CommonErrors'
         201:
           description: Token created successfully.
           content:
@@ -172,8 +167,105 @@ paths:
               examples:
                 default:
                   $ref: '#/components/examples/CreateTokenResponseExample'
-        allErrors:
-          $ref: '#/components/responses/AllErrorResponses'
+
+  /v1/tenants:
+    post:
+      summary: Create tenant
+      description: Create a new tenant.
+      operationId: createTenant
+      tags:
+        - Tenants
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTenantRequest'
+      responses:
+        $ref: '#/components/responses/CommonErrors'
+        201:
+          description: Tenant created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tenant'
+
+  /v1/tenants/{tenantId}:
+    get:
+      summary: Get tenant
+      description: Retrieve a tenant by its ID.
+      operationId: getTenant
+      tags:
+        - Tenants
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      responses:
+        $ref: '#/components/responses/CommonErrors'
+        200:
+          description: Tenant retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tenant'
+              examples:
+                default:
+                  $ref: '#/components/examples/GetTenantResponseExample'
+    delete:
+      summary: Delete tenant
+      description: Delete a tenant by its ID.
+      operationId: deleteTenant
+      tags:
+        - Tenants
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      responses:
+        $ref: '#/components/responses/CommonErrors'
+        204:
+          description: Tenant deleted successfully.
+
+  /v1/tenants/{tenantId}/providers:
+    post:
+      summary: Create tenant provider
+      description: Create a new provider for a tenant.
+      operationId: createProviderForTenant
+      tags:
+        - Tenants
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProviderRequest'
+      responses:
+        $ref: '#/components/responses/CommonErrors'
+        201:
+          description: Provider created successfully.
+
+  /v1/tenants/{tenantId}/validate:
+    post:
+      summary: Validate access token
+      description: Validate an access token.
+      operationId: validateAccessToken
+      tags:
+        - Tenants
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  description: The access token to validate.
+      responses:
+        $ref: '#/components/responses/CommonErrors'
+        200:
+          description: Access token validated successfully.
 
 components:
   securitySchemes:
@@ -195,6 +287,12 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/ClientId'
+    TenantId:
+      name: tenantId
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/TenantId'
 
   schemas:
     ProviderId:
@@ -226,6 +324,21 @@ components:
       type: string
       description: Description of the client.
       example: Client for Acme Auth App
+
+    TenantId:
+      type: string
+      description: Unique identifier for a tenant.
+      example: 550e8400-e29b-41d4-a716-446655440000
+
+    TenantName:
+      type: string
+      description: Name of the tenant.
+      example: Acme Auth Tenant
+
+    TenantDescription:
+      type: string
+      description: Description of the tenant.
+      example: Tenant for Acme Auth App
 
     CreateProviderRequest:
       type: object
@@ -267,6 +380,40 @@ components:
         forceDefaultDomain:
           type: boolean
           description: When true, the default domain will be used in the issuer field.
+
+    CreateTenantRequest:
+      type: object
+      description: Payload for creating a new tenant.
+      properties:
+        name:
+          $ref: '#/components/schemas/TenantName'
+        description:
+          $ref: '#/components/schemas/TenantDescription'
+      required:
+        - name
+        - description
+
+    CreateProviderRequestForTenant:
+      type: object
+      description: Payload for creating a new provider for a tenant.
+      properties:
+        url:
+          type: string
+          description: The URL of the provider.
+        fingerprint:
+          type: string
+          description: The fingerprint of the provider.
+        audience:
+          type: string
+          description: The audience of the provider.
+        earliestIssuanceTimeAllowed:
+          type: number
+          description: The earliest issuance time allowed for the provider.
+      required:
+        - url
+        - fingerprint
+        - audience
+        - earliestIssuanceTimeAllowed
 
     Provider:
       type: object
@@ -312,6 +459,31 @@ components:
         - accessToken
         - expiresAt
         - type
+
+    Tenant:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/TenantId'
+        name:
+          $ref: '#/components/schemas/TenantName'
+        description:
+          $ref: '#/components/schemas/TenantDescription'
+      required:
+        - id
+        - name
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      required:
+        - code
+        - message
+
   examples:
     CreateProviderRequestExample:
       summary: Example request for creating a provider.
@@ -360,35 +532,64 @@ components:
         expiresAt: 2024-01-01T00:00:00Z
         type: Bearer
 
+    CreateTenantRequestExample:
+      summary: Example request for creating a tenant.
+      value:
+        id: 550e8400-e29b-41d4-a716-446655440000
+        name: Tenant Name
+        description: Tenant for Acme App.
+
+    GetTenantResponseExample:
+      summary: Example response for retrieving a tenant.
+      value:
+        id: 550e8400-e29b-41d4-a716-446655440000
+        name: Tenant Name
+        description: Tenant for Acme App.
+
   responses:
-    AllErrorResponses:
-      description: Common error responses.
+    BadRequest:
+      description: Invalid request parameters.
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              code:
-                type: string
-              message:
-                type: string
-      responses:
-        400:
-          description: Invalid request parameters.
-        401:
-          description: Authentication is required.
-        404:
-          description: Resource not found.
-        500:
-          description: Internal server error.
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Missing or invalid or expired auth token.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Resource not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InternalError:
+      description: Internal server error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    CommonErrors:
+      400:
+        $ref: '#/components/responses/BadRequest'
+      401:
+        $ref: '#/components/responses/Unauthorized'
+      404:
+        $ref: '#/components/responses/NotFound'
+      500:
+        $ref: '#/components/responses/InternalError'
 
 tags:
   - name: Providers
-    description: Providers that interact with UseGrant services.
+    description: A provider is like a isolated realm where you can create multiple clients and get access to the API. Each provider is a seperated entity.
   - name: Clients
-    description: Client entities that interact with UseGrant services.
+    description: A client is an entity that can access the API, you can create multiple clients for a provider. The client will be configured with your target oidc provider.
   - name: AccessTokens
-    description: Access tokens for clients.
+    description: Access tokens are generated for a client and can be used to access your target API.
+  - name: Tenants
+    description: Tenants are the group of identitiy provider which you can validate clients against.
 
 security:
   - BearerAuth: []
