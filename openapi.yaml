@@ -237,7 +237,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateProviderRequest'
+              $ref: '#/components/schemas/CreateTenantProviderRequest'
       responses:
         $ref: '#/components/responses/CommonErrors'
         201:
@@ -358,11 +358,12 @@ components:
       properties:
         name:
           $ref: '#/components/schemas/ClientName'
-        description:
-          $ref: '#/components/schemas/ClientDescription'
+        audience:
+          type: string
+          description: The audience of the client.
       required:
         - name
-        - description
+        - audience
 
     CreateTokenRequest:
       type: object
@@ -393,7 +394,7 @@ components:
         - name
         - description
 
-    CreateProviderRequestForTenant:
+    CreateTenantProviderRequest:
       type: object
       description: Payload for creating a new provider for a tenant.
       properties:
@@ -509,14 +510,14 @@ components:
       summary: Example request for creating a client.
       value:
         name: Client Name
-        description: Client for Acme App.
+        audience: sts.amazonaws.com
 
     CreateClientResponseExample:
       summary: Example response for created client.
       value:
         id: 550e8400-e29b-41d4-a716-446655440000
         name: Client Name
-        description: Client for Acme App.
+        audience: sts.amazonaws.com
 
     GetClientResponseExample:
       summary: Example response for retrieving a client.
