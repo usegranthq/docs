@@ -25,9 +25,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CreateProviderRequest'
-            examples:
-              default:
-                $ref: '#/components/examples/CreateProviderRequestExample'
       responses:
         $ref: '#/components/responses/CommonErrors'
         201:
@@ -36,9 +33,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Provider'
-              examples:
-                default:
-                  $ref: '#/components/examples/CreateProviderResponseExample'
 
   /v1/providers/{providerId}:
     get:
@@ -57,9 +51,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Provider'
-              examples:
-                default:
-                  $ref: '#/components/examples/GetProviderResponseExample'
 
     delete:
       summary: Delete provider
@@ -89,9 +80,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CreateClientRequest'
-            examples:
-              default:
-                $ref: '#/components/examples/CreateClientRequestExample'
       responses:
         $ref: '#/components/responses/CommonErrors'
         201:
@@ -100,9 +88,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Client'
-              examples:
-                default:
-                  $ref: '#/components/examples/CreateClientResponseExample'
 
   /v1/providers/{providerId}/clients/{clientId}:
     get:
@@ -122,9 +107,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Client'
-              examples:
-                default:
-                  $ref: '#/components/examples/GetClientResponseExample'
 
     delete:
       summary: Delete client
@@ -164,9 +146,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Token'
-              examples:
-                default:
-                  $ref: '#/components/examples/CreateTokenResponseExample'
 
   /v1/tenants:
     post:
@@ -207,9 +186,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Tenant'
-              examples:
-                default:
-                  $ref: '#/components/examples/GetTenantResponseExample'
     delete:
       summary: Delete tenant
       description: Delete a tenant by its ID.
@@ -260,12 +236,11 @@ paths:
               type: object
               properties:
                 token:
-                  type: string
-                  description: The access token to validate.
+                  $ref: '#/components/schemas/JwtToken'
       responses:
         $ref: '#/components/responses/CommonErrors'
         200:
-          description: Access token validated successfully.
+          description: Access token is valid.
 
 components:
   securitySchemes:
@@ -320,10 +295,10 @@ components:
       description: Name of the client.
       example: Acme Auth Client
 
-    ClientDescription:
+    ClientAudience:
       type: string
-      description: Description of the client.
-      example: Client for Acme Auth App
+      description: Audience of the client.
+      example: sts.amazonaws.com
 
     TenantId:
       type: string
@@ -339,6 +314,11 @@ components:
       type: string
       description: Description of the tenant.
       example: Tenant for Acme Auth App
+
+    JwtToken:
+      type: string
+      description: JWT token.
+      example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
 
     CreateProviderRequest:
       type: object
@@ -359,8 +339,7 @@ components:
         name:
           $ref: '#/components/schemas/ClientName'
         audience:
-          type: string
-          description: The audience of the client.
+          $ref: '#/components/schemas/ClientAudience'
       required:
         - name
         - audience
@@ -437,25 +416,26 @@ components:
           $ref: '#/components/schemas/ClientId'
         name:
           $ref: '#/components/schemas/ClientName'
-        description:
-          $ref: '#/components/schemas/ClientDescription'
+        audience:
+          $ref: '#/components/schemas/ClientAudience'
       required:
         - id
         - name
-        - description
+        - audience
 
     Token:
       type: object
       properties:
         accessToken:
-          type: string
-          description: Access token for the client.
+          $ref: '#/components/schemas/JwtToken'
         expiresAt:
           type: string
           description: Expiration date and time of the access token.
+          example: 2024-01-01T00:00:00Z
         type:
           type: string
           description: Type of the token.
+          example: Bearer
       required:
         - accessToken
         - expiresAt
@@ -484,68 +464,6 @@ components:
       required:
         - code
         - message
-
-  examples:
-    CreateProviderRequestExample:
-      summary: Example request for creating a provider.
-      value:
-        name: Acme App
-        description: Provider for Acme application.
-
-    CreateProviderResponseExample:
-      summary: Example response for created provider.
-      value:
-        id: 9b2e4d7a-8c3f-4b2a-9a1e-2d3c4e5f6a7b
-        name: Acme App
-        description: Provider for Acme application.
-
-    GetProviderResponseExample:
-      summary: Example response for retrieving a provider.
-      value:
-        id: 9b2e4d7a-8c3f-4b2a-9a1e-2d3c4e5f6a7b
-        name: Acme App
-        description: Provider for Acme application.
-
-    CreateClientRequestExample:
-      summary: Example request for creating a client.
-      value:
-        name: Client Name
-        audience: sts.amazonaws.com
-
-    CreateClientResponseExample:
-      summary: Example response for created client.
-      value:
-        id: 550e8400-e29b-41d4-a716-446655440000
-        name: Client Name
-        audience: sts.amazonaws.com
-
-    GetClientResponseExample:
-      summary: Example response for retrieving a client.
-      value:
-        id: 550e8400-e29b-41d4-a716-446655440000
-        name: Client Name
-        description: Client for Acme App.
-
-    CreateTokenResponseExample:
-      summary: Example response for created token.
-      value:
-        accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
-        expiresAt: 2024-01-01T00:00:00Z
-        type: Bearer
-
-    CreateTenantRequestExample:
-      summary: Example request for creating a tenant.
-      value:
-        id: 550e8400-e29b-41d4-a716-446655440000
-        name: Tenant Name
-        description: Tenant for Acme App.
-
-    GetTenantResponseExample:
-      summary: Example response for retrieving a tenant.
-      value:
-        id: 550e8400-e29b-41d4-a716-446655440000
-        name: Tenant Name
-        description: Tenant for Acme App.
 
   responses:
     BadRequest:
