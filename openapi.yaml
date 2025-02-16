@@ -241,6 +241,45 @@ paths:
         $ref: '#/components/responses/CommonErrors'
         200:
           description: Access token is valid.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isValid:
+                    type: boolean
+
+  /v1/tenants/{tenantId}/providers/{providerId}:
+    get:
+      summary: Get tenant provider
+      description: Retrieve a tenant provider by its ID.
+      operationId: getTenantProvider
+      tags:
+        - Tenants
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/TenantProviderId'
+      responses:
+        $ref: '#/components/responses/CommonErrors'
+        200:
+          description: Provider retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantProvider'
+    delete:
+      summary: Delete tenant provider
+      description: Delete a tenant provider by its ID.
+      operationId: deleteTenantProvider
+      tags:
+        - Tenants
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/TenantProviderId'
+      responses:
+        $ref: '#/components/responses/CommonErrors'
+        204:
+          description: Tenant provider deleted successfully.
 
 components:
   securitySchemes:
@@ -268,12 +307,18 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/TenantId'
+    TenantProviderId:
+      name: tenantProviderId
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/TenantProviderId'
 
   schemas:
     ProviderId:
       type: string
       description: Unique identifier for a provider.
-      example: 9b2e4d7a-8c3f-4b2a-9a1e-2d3c4e5f6a7b
+      format: uuid
 
     ProviderName:
       type: string
@@ -288,7 +333,7 @@ components:
     ClientId:
       type: string
       description: Unique identifier for a client.
-      example: 550e8400-e29b-41d4-a716-446655440000
+      format: uuid
 
     ClientName:
       type: string
@@ -303,7 +348,7 @@ components:
     TenantId:
       type: string
       description: Unique identifier for a tenant.
-      example: 550e8400-e29b-41d4-a716-446655440000
+      format: uuid
 
     TenantName:
       type: string
@@ -314,6 +359,11 @@ components:
       type: string
       description: Description of the tenant.
       example: Tenant for Acme Auth App
+
+    TenantProviderId:
+      type: string
+      description: Unique identifier for a tenant provider.
+      format: uuid
 
     JwtToken:
       type: string
@@ -454,6 +504,36 @@ components:
         - id
         - name
         - description
+
+    TenantProvider:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the provider.
+          example: 9b2e4d7a-8c3f-4b2a-9a1e-2d3c4e5f6a7b
+        url:
+          type: string
+          description: The URL of the provider.
+          example: https://usegrant.dev
+        fingerprints:
+          type: array
+          description: The fingerprints of the provider.
+          example: ['990F4193972F2BECF12DDEDA5237F9C952F20D9E']
+        audience:
+          type: string
+          description: The audience of the provider.
+          example: sts.amazonaws.com
+        earliestIssuanceTimeAllowed:
+          type: number
+          description: The earliest issuance time allowed for the provider.
+          example: 1713033600
+      required:
+        - id
+        - url
+        - fingerprint
+        - audience
+        - earliestIssuanceTimeAllowed
 
     Error:
       type: object
