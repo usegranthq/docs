@@ -370,7 +370,7 @@ components:
       description: Payload for creating a new access token.
       properties:
         expiresIn:
-          type: string
+          type: number
           description: The expiration date and time of the access token in seconds. Cannot be more than 48 hours. The shorter the duration, the more secure it is.
         useJwtType:
           type: boolean
