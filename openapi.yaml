@@ -430,18 +430,25 @@ components:
         url:
           type: string
           description: The URL of the provider.
-        fingerprint:
-          type: string
-          description: The fingerprint of the provider.
+          example: https://usegrant.dev
+        fingerprints:
+          type: array
+          items:
+            type: string
+          description: The fingerprints of the provider.
+          example:
+            - '990F4193972F2BECF12DDEDA5237F9C952F20D9E'
         audience:
           type: string
           description: The audience of the provider.
+          example: sts.amazonaws.com
         earliestIssuanceTimeAllowed:
           type: number
           description: The earliest issuance time allowed for the provider.
+          example: 1713033600
       required:
         - url
-        - fingerprint
+        - fingerprints
         - audience
         - earliestIssuanceTimeAllowed
 
