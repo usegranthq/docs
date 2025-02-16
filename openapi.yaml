@@ -453,6 +453,7 @@ components:
       required:
         - id
         - name
+        - description
 
     Error:
       type: object
