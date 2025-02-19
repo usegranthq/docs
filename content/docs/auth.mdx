@@ -3,10 +3,10 @@ title: API Authentication
 description: Learn how to authenticate your requests to the UseGrant API.
 ---
 
-The UseGrant API uses Bearer tokens for authentication. We recommend beginning with this section to learn how to securely access the API.
+The UseGrant Rest API uses Bearer tokens for authentication. We recommend beginning with this section to learn how to securely access the API.
 From there, you can explore the guides and examples for different endpoints and see how they can help you achieve your goals.
 
-To start using the UseGrant API, the first step is to create an API token.
+To start using the UseGrant Rest API, the first step is to create an API token.
 To generate a token,
 
 1. log in to the app
@@ -18,13 +18,15 @@ Ensure that you store the token securely. For subsequent requests, the client au
 Example:
 
 ```http
-Authorization: Bearer usegrant_<token>
+Authorization: Bearer usegrant_api_<token>
 ```
 
-Note: The token you generate will have the format `usegrant_<token>`.
-The `usegrant_` prefix is used to indicate that it is a UseGrant token and you can also use it to identify if the token is accidentally exposed.
+Note: The token you generate will have the format `usegrant_api_<token>`.
+The `usegrant_api_` prefix is used to indicate that it is a UseGrant token and it is an API token and you can also use it to identify if the token is accidentally exposed.
 
 If/When the token is expired, you will receive a `401 Unauthorized` response.
+
+In future, if we add more types of tokens, the token prefix will help you identify the nature of the token.
 
 ### Example
 
@@ -34,5 +36,5 @@ Here is an example of how to include the Bearer token in a `curl` request to cre
 curl -X POST https://sdk.usegrant.com/v1/providers \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
-  -d '{"name": "My Project", "description": "A project for testing"}'
+  -d '{"name": "Acme Project", "description": "A project for testing"}'
 ```

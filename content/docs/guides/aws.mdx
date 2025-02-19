@@ -7,19 +7,21 @@ keywords:
   - Temporary Security Credentials with AWS
 ---
 
-This guide will walk you through the process of authenticating with AWS services using Web Identity Federation. By following these steps, you can obtain temporary security credentials without embedding long-term credentials in your applications.
+This guide will walk you through the process of authenticating with AWS services using Web Identity Federation.
+By following these steps, you can obtain temporary security credentials without embedding long-term credentials in your applications.
 
-The temporary security credentials returned by this API consist of an access key ID, a secret access key, and a security token.
-Applications can use these temporary security credentials to sign calls to AWS service API operations.
+The temporary security credentials returned by the AWS API consist of an access key ID, a secret access key, and a security token.
+Applications can use these temporary security credentials to securely access AWS Resources.
 
 ## Prerequisites
 
-- An active client in useGrant.dev
+- An active client in usegrant.dev
 - An AWS account
 - AWS CLI installed on your system
 
 Before proceeding, you must plan your security strategy to ensure that access tokens are only allocated in a predictable way.
-To control how your cloud provider issues access tokens, you must define at least one condition, so that untrusted entities can’t request access tokens for your cloud resources.
+To control how your cloud provider issues access tokens, you must define at least one condition to your openid connect provider,
+so that untrusted entities can't request access tokens for your cloud resources.
 
 ## Step 1: Set Up an OpenID Connect Provider in AWS
 
@@ -83,7 +85,7 @@ aws sts assume-role-with-web-identity \
 ```
 
 This would return the temporary security credentials with AccessKeyId, SecretAccessKey and SessionToken.
-You can use these credentials to sign calls to AWS service API operations.
+You can use these credentials to securely access AWS Resources.
 
 For example,
 

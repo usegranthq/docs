@@ -24,17 +24,19 @@ Once you have completed the steps above, you should be able to authenticate with
 Follow the [NeonDB docs](https://neon.tech/docs/guides/neon-authorize) for more information on
 how to use the NeonDB api. A typical example would look like this:
 
-```typescript
+```ts
 import { neon } from '@neondatabase/serverless';
 
-const ugClient = new UseGrant({
-  clientId: process.env.USEGRANT_CLIENT_ID,
-  token: process.env.USEGRANT_API_TOKEN,
-});
+const ugClient = new UseGrant(process.env.USEGRANT_API_TOKEN);
+
+const getToken = async () => {
+  const token = await ugClient.createToken('providerId', 'clientId');
+  return token;
+};
 
 const sql = neon(process.env.DATABASE_AUTHENTICATED_URL, {
   authToken: async () => {
-    const token = await ugClient.getJWT();
+    const token = await getToken();
     return token;
   },
 });

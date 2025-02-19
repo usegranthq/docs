@@ -10,17 +10,17 @@ keywords:
 This guide will walk you through the process of authenticating with Alibaba Cloud services using Identity Federation.
 By following these steps, you can obtain temporary security credentials without embedding long-term credentials in your applications.
 
-The temporary security credentials returned by this API consist of an access key ID, a secret access key, and a security token.
-Applications can use these temporary security credentials to sign calls to Alibaba Cloud service API operations.
+The temporary security credentials returned by the alicloud API consist of an access key ID, a secret access key, and a security token.
+Applications can use these temporary security credentials to securely access Alibaba Cloud Resources.
 
 ## Prerequisites
 
-- An active client in useGrant.dev
+- An active client in usegrant.dev
 - An Alibaba Cloud account
 - Alibaba Cloud CLI installed on your system
 
 Before proceeding, you must plan your security strategy to ensure that access tokens are only allocated in a predictable way.
-To control how your cloud provider issues access tokens, you must define at least one condition, so that untrusted entities can’t request access tokens for your cloud resources.
+To control how your cloud provider issues access tokens, you must define at least one condition to your openid connect provider, so that untrusted entities can't request access tokens for your cloud resources.
 
 ## Step 1: Set Up an OpenID Connect Provider in Alibaba Cloud
 
@@ -31,8 +31,8 @@ To control how your cloud provider issues access tokens, you must define at leas
 
 For the issuer URL use the url of your project or the custom domain you set up.
 
-Ensure that the audience matches the one used to create the client in useGrant.dev.
-For Alibaba Cloud, the audience can be `ram.aliyuncs.com` or the audience you used while creating the client in useGrant.dev.
+Ensure that the audience matches the one used to create the client in usegrant.dev.
+For Alibaba Cloud, the audience can be `ram.aliyuncs.com` or the audience you used while creating the client in usegrant.dev.
 
 Refer to the [Alibaba Cloud documentation](https://www.alibabacloud.com/help/en/ram/user-guide/manage-an-oidc-idp) for more details and options.
 
@@ -64,15 +64,14 @@ aliyun sts AssumeRoleWithOIDC \
 ```
 
 This would return the temporary security credentials with AccessKeyId, SecretAccessKey and SessionToken.
-You can use these credentials to sign calls to Alibaba Cloud service API operations.
+You can use these temporary credentials to access Alibaba Cloud Resources depending on the policy attached to the role.
 
 <Callout>
   Alibaba expects the JWT to have audience as an array and the token header type to be `jwt` instead of `at+jwt`.
-  Pass the following options in the client settings while creating the access token.
+  Pass the following options to the create access token REST API,
+  so the JWT generated is compatible with Alibaba Cloud.
   - `audienceAsArray`
   - `useJwtType`
-
-to generate the JWT that Alibaba expects.
 
 </Callout>
 
@@ -102,7 +101,7 @@ For example,
 }
 ```
 
-You can also interactively test the API on [Alibaba OpenApi Explorer](https://api.alibabacloud.com/api/Sts/2015-04-01/AssumeRoleWithOIDC).
+You can also interactively test the AliCloud API's on [Alibaba OpenApi Explorer](https://api.alibabacloud.com/api/Sts/2015-04-01/AssumeRoleWithOIDC).
 
 By default, the temporary security credentials created by AssumeRoleWithOIDC last for one hour.
 However, you can use the optional DurationSeconds parameter to specify the duration of your session.

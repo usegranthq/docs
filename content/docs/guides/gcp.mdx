@@ -10,17 +10,18 @@ keywords:
 This guide will walk you through the process of authenticating with GCP services using Workload Identity Federation.
 By following these steps, you can obtain temporary security credentials without embedding long-term credentials in your applications.
 
-The temporary security credentials returned by this API consist of an access token.
-Applications can use this access token to sign calls to GCP service API operations.
+The temporary security credentials returned by the GCP API consist of an access token.
+Applications can use this access token to securely access GCP Resources.
 
 ## Prerequisites
 
-- An active client in useGrant.dev
+- An active client in usegrant.dev
 - A GCP account
 - [gcloud cli](https://cloud.google.com/sdk/docs/install) installed on your system
 
 Before proceeding, you must plan your security strategy to ensure that access tokens are only allocated in a predictable way.
-To control how your cloud provider issues access tokens, you must define at least one condition, so that untrusted entities can’t request access tokens for your cloud resources.
+To control how your cloud provider issues access tokens, you must define at least one condition to your openid connect provider,
+so that untrusted entities can't request access tokens for your cloud resources.
 
 ## Step 1: Create a Workload Identity Pool
 
@@ -86,7 +87,7 @@ The configuration file will be in the following format:
 
 ## Step 4: Retrieve temporary credentials
 
-Get the access token from the client in useGrant.dev and save it to a file(token.jwt) relative to the configuration file.
+Get the access token from the client in usegrant.dev and save it to a file(token.jwt) relative to the configuration file.
 
 Then, use the following command to authenticate with Google Workload Identity Federation:
 
@@ -106,11 +107,12 @@ To test the login, run the following command to print the list of projects:
 gcloud projects list
 ```
 
-Note: Ensure the service account has the `Browser` role assigned. Without this role, the list of projects may be empty or an error might occur.
+Note: Ensure the service account has the `Browser` role assigned.
+Without this role, the list of projects may be empty or an error might occur.
 
 ### Alternative: Using CURL
 
-Get the access token from the client in useGrant.dev and export it as an environment variable.
+Get the access token from the client in usegrant.dev and export it as an environment variable.
 
 ```bash
 export USEGRANT_OIDC_TOKEN=$(curl -s "https://sdk.usegrant.dev/v1/providers/{providerId}/clients/{clientId}/tokens" | jq -r '.access_token')
@@ -168,4 +170,4 @@ Where:
 The result is a Google Cloud OAuth 2.0 access token,
 which you can use to authenticate to most Google Cloud APIs and services when used as a bearer token.
 
-You can also pass this value to the `gcloud CLI` by setting the environment variable `CLOUDSDK_AUTH_ACCESS_TOKEN`.
+You can also pass this value to the `gcloud cli` by setting the environment variable `CLOUDSDK_AUTH_ACCESS_TOKEN`.

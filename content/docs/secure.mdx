@@ -6,7 +6,8 @@ description: Learn about UseGrant's security features
 The system is built on and for `zero trust`.
 Your service implementations and use cases remain completely private with you, on your servers.
 
-Information we collect: your signup email to authenticate you to the app.
+Information we collect: your signup email, sole purpose is to authenticate you to the app.
+It is not used with the oauth implementation in any way.
 We do not collect or store any data about your services or intended usage patterns.
 
 Logs: We only log essential system information (never any user data) to ensure the app operates as expected.
@@ -21,24 +22,25 @@ By limiting the data we store, we minimize the potential impact of any data brea
 
 ### Breach Resistant
 
-These measures make our system breach resistant. We make sure all the best practices are followed to ensure the security of the system.
+These measures make the system breach resistant. We make sure all the best practices are followed to ensure the security of the system.
 But, even in the unlikely event of a breach, there is no actionable information at risk. Only you use our services,
 not the other way around.
 
-During the authentication process, your service will contact the following endpoints to verify the token if it signed by us.
+During the authentication process, your service will contact the following public endpoints to verify the token if it signed by us.
 
-First, your service will contact the following endpoint to retrieve the URL of the `jwks` endpoint.
+First, your service will contact the following endpoint to discover the URL of the `jwks` endpoint.
 
 ```http
 GET /.well-known/openid-configuration
 ```
 
-The `jwks` endpoint contains the public keys used to verify the token signature.
 Next, it will contact the following endpoint to get the public keys.
 
 ```http
 GET /.well-known/jwks
 ```
+
+The `jwks` endpoint contains the public keys used to verify the token signature.
 
 Requests to these endpoints are not logged.
 
