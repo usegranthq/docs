@@ -437,7 +437,7 @@ components:
             type: string
           description: The fingerprints of the provider.
           example:
-            - '990F4193972F2BECF12DDEDA5237F9C952F20D9E'
+            - 990F4193972F2BECF12DDEDA5237F9C952F20D9E
         audience:
           type: string
           description: The audience of the provider.
