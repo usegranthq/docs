@@ -1,8 +1,10 @@
-import { openapi, source } from '@/lib/source';
 import { DocsPage, DocsBody, DocsDescription, DocsTitle, DocsCategory } from 'fumadocs-ui/page';
 import { notFound } from 'next/navigation';
 import defaultMdxComponents from 'fumadocs-ui/mdx';
+
+import { openapi, source } from '@/lib/source';
 import { metadataImage } from '@/lib/metadata';
+import { getSiteUrl } from '@/utils/site';
 
 export default async function Page(props: { params: Promise<{ slug?: string[] }> }) {
   const params = await props.params;
@@ -40,7 +42,10 @@ export async function generateMetadata(props: { params: Promise<{ slug?: string[
 
   if (!page) notFound();
 
+  const metadataBase = new URL(getSiteUrl());
+
   return metadataImage.withImage(page.slugs, {
+    metadataBase,
     title: page.data.title,
     description: page.data.description,
     keywords: page.data.keywords,
