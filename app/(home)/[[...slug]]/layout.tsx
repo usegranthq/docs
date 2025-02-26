@@ -1,8 +1,8 @@
-import { DocsLayout, DocsLayoutProps } from 'fumadocs-ui/layouts/docs';
 import type { ReactNode } from 'react';
+import { DocsLayout, DocsLayoutProps } from 'fumadocs-ui/layouts/docs';
 
-import { baseOptions } from '@/app/layout.config';
 import { source } from '@/lib/source';
+import { baseOptions } from '@/app/layout.config';
 
 import Pattern from './Pattern';
 

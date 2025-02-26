@@ -1,5 +1,5 @@
-import { rimrafSync } from 'rimraf';
 import { generateFiles } from 'fumadocs-openapi';
+import { rimrafSync } from 'rimraf';
 
 const out = './content/docs/api';
 

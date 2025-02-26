@@ -1,7 +1,7 @@
-import { RootProvider } from 'fumadocs-ui/provider';
 import type { ReactNode } from 'react';
-import { GeistSans } from 'geist/font/sans';
+import { RootProvider } from 'fumadocs-ui/provider';
 import { GeistMono } from 'geist/font/mono';
+import { GeistSans } from 'geist/font/sans';
 
 import './global.css';
 
