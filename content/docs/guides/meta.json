@@ -1,0 +1,4 @@
+{
+  "pages": ["aws", "gcp", "alibaba", "neon", "azure", "..."],
+  "defaultOpen": true
+}
