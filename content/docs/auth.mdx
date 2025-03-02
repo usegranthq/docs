@@ -18,11 +18,11 @@ Ensure that you store the token securely. For subsequent requests, the client au
 Example:
 
 ```http
-Authorization: Bearer usegrant_api_<token>
+Authorization: Bearer uga_<token>
 ```
 
-Note: The token you generate will have the format `usegrant_api_<token>`.
-The `usegrant_api_` prefix is used to indicate that it is a UseGrant token and it is an API token and you can also use it to identify if the token is accidentally exposed.
+Note: The token you generate will have the format `uga_<token>`.
+The `uga_` prefix is used to indicate that it is a UseGrant token and it is an API token and you can also use it to identify if the token is accidentally exposed.
 
 If/When the token is expired, you will receive a `401 Unauthorized` response.
 
