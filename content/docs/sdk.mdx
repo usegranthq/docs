@@ -1,0 +1,31 @@
+---
+title: SDK
+description: Typesafe TypeScript SDK for UseGrant API
+---
+
+## Installation
+
+SDK can be installed using [npm], [bun] or [pnpm] package managers:
+
+```bash
+npm install @usegrant/sdk
+# or
+bun install @usegrant/sdk
+# or
+pnpm install @usegrant/sdk
+```
+
+## Authentication
+
+To use the SDK, you need to have an API key. You can create one in the [UseGrant Settings Page](https://usegrant.dev/u/settings/token) page. If you face any 401 or 403 errors when you are sending a token, it can be one of the following reasons:
+
+- The token is invalid, check if you have copied the token correctly. Also make sure the token is in format `uga_<token>`.
+- The token has expired, you can create a new token and replace the existing token.
+
+## Usage
+
+Refer to the [Github README](https://github.com/usegranthq/sdk) for the usage instructions.
+
+[npm]: https://www.npmjs.com
+[bun]: https://bun.sh/
+[pnpm]: https://pnpm.io
