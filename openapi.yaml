@@ -13,6 +13,23 @@ servers:
 
 paths:
   /v1/providers:
+    get:
+      summary: Get all providers
+      description: Retrieve all providers.
+      operationId: getProviders
+      tags:
+        - Providers
+      responses:
+        $ref: '#/components/responses/CommonErrors'
+        200:
+          description: Providers retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Provider'
+
     post:
       summary: Create provider
       description: Create a new provider.
@@ -51,7 +68,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Provider'
-
     delete:
       summary: Delete provider
       description: Delete a provider by its ID.
@@ -66,6 +82,24 @@ paths:
           description: Provider deleted successfully.
 
   /v1/providers/{providerId}/clients:
+    get:
+      summary: Get all clients
+      description: Retrieve all clients.
+      operationId: getClients
+      tags:
+        - Clients
+      parameters:
+        - $ref: '#/components/parameters/ProviderId'
+      responses:
+        $ref: '#/components/responses/CommonErrors'
+        200:
+          description: Clients retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Client'
     post:
       summary: Create client
       description: Create a new client within a specified provider.
@@ -148,6 +182,22 @@ paths:
                 $ref: '#/components/schemas/Token'
 
   /v1/tenants:
+    get:
+      summary: Get all tenants
+      description: Retrieve all tenants.
+      operationId: getTenants
+      tags:
+        - Tenants
+      responses:
+        $ref: '#/components/responses/CommonErrors'
+        200:
+          description: Tenants retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tenant'
     post:
       summary: Create tenant
       description: Create a new tenant.
@@ -200,6 +250,24 @@ paths:
           description: Tenant deleted successfully.
 
   /v1/tenants/{tenantId}/providers:
+    get:
+      summary: Get all tenant providers
+      description: Retrieve all providers for a tenant.
+      operationId: getTenantProviders
+      tags:
+        - Tenants
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      responses:
+        $ref: '#/components/responses/CommonErrors'
+        200:
+          description: Tenant providers retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TenantProvider'
     post:
       summary: Create tenant provider
       description: Create a new provider for a tenant.
