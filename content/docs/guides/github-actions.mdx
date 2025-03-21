@@ -1,0 +1,29 @@
+---
+title: Trust relations with GitHub Actions
+description: Guide to add Github Action to the tenant as a trusted identity provider
+keywords:
+  - Trust relations with GitHub Actions
+  - GitHub Actions OIDC provider
+  - GitHub Actions OIDC provider setup
+---
+
+## Adding a trust relationship for GitHub Actions
+
+To add a trust relationship for GitHub Actions, you can go through the following steps:
+
+- Create a new tenent or use an existing one
+- Click Add identity provider
+- Use `https://token.actions.githubusercontent.com` as the provider URL
+- Click `Fetch fingerprint` to fetch the fingerprint of the provider
+- Set the audience that is used to generate the token
+- Set the subject to `repo:octo-org/octo-repo:ref:refs/heads/octo-branch`. Replace the values with the actual repository details.
+- Click `Add identity provider`
+
+Ensure your workflow has permission to use this OIDC trust relationship by setting the permission `id-token: write`.
+
+<Callout title="Note" type="info">
+  By default, audience is the URL of the repository owner, such as the organization that owns the repository. You can set a custom audience with a toolkit command: `core.getIDToken(audience)`.
+
+Refer: [GitHub's security hardening with OpenID Connect](https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/about-security-hardening-with-openid-connect#understanding-the-oidc-token) for how claims are generated.
+
+</Callout>
