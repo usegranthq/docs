@@ -31,3 +31,38 @@ Also, ensure your workflow sets the `id-token: write` permission to allow GitHub
 Refer: [GitHub's security hardening with OpenID Connect](https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/about-security-hardening-with-openid-connect#understanding-the-oidc-token) for how claims are generated.
 
 </Callout>
+
+### How to generate id-token in Github Actions
+
+You can generate an ID token inside a workflow using the `actions/toolkit` package.
+
+```yaml
+name: Generate ID token
+
+permissions:
+  id-token: write
+
+jobs:
+  generate-id-token:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate ID token
+        uses: actions/github-script@v7
+        with:
+          result-encoding: string
+          script: |
+            // core is available globally
+            const idToken = await core.getIDToken();
+            console.log(idToken);
+```
+
+To get ID token with a custom audience, you can pass the audience as an argument to the `core.getIDToken` function.
+
+```js
+import * as core from '@actions/core';
+
+const idToken = await core.getIDToken('https://api.example.com');
+console.log(idToken);
+```
+
+Refer to the [core package](https://github.com/actions/toolkit/tree/main/packages/core#oidc-token) for more details.
