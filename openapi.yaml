@@ -396,6 +396,8 @@ paths:
             schema:
               type: object
               properties:
+                tenantProviderPolicyId:
+                  $ref: '#/components/schemas/TenantProviderPolicyId'
                 token:
                   $ref: '#/components/schemas/JwtToken'
       responses:
@@ -480,6 +482,12 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/DomainId'
+    TenantProviderPolicyId:
+      name: tenantProviderPolicyId
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/TenantProviderPolicyId'
 
   schemas:
     ProviderId:
@@ -530,6 +538,11 @@ components:
     TenantProviderId:
       type: string
       description: Unique identifier for a tenant provider.
+      format: uuid
+
+    TenantProviderPolicyId:
+      type: string
+      description: Unique identifier for a tenant provider policy.
       format: uuid
 
     JwtToken:
