@@ -14,7 +14,7 @@ servers:
 paths:
   /v1/providers:
     get:
-      summary: Get all providers
+      summary: List all providers
       description: Retrieve all providers.
       operationId: getProviders
       tags:
@@ -83,7 +83,7 @@ paths:
 
   /v1/providers/{providerId}/clients:
     get:
-      summary: Get all clients
+      summary: List all clients
       description: Retrieve all clients.
       operationId: getClients
       tags:
@@ -183,7 +183,7 @@ paths:
 
   /v1/providers/{providerId}/domains:
     get:
-      summary: Get all domains
+      summary: List all domains
       description: Retrieve all domains for the provider.
       operationId: getDomains
       tags:
@@ -276,7 +276,7 @@ paths:
 
   /v1/tenants:
     get:
-      summary: Get all tenants
+      summary: List all tenants
       description: Retrieve all tenants.
       operationId: getTenants
       tags:
@@ -344,7 +344,7 @@ paths:
 
   /v1/tenants/{tenantId}/providers:
     get:
-      summary: Get all tenant providers
+      summary: List all tenant providers
       description: Retrieve all providers for a tenant.
       operationId: getTenantProviders
       tags:
@@ -443,6 +443,84 @@ paths:
         $ref: '#/components/responses/CommonErrors'
         204:
           description: Tenant provider deleted successfully.
+
+  /v1/tenants/{tenantId}/providers/{providerId}/policies:
+    get:
+      summary: List all policies
+      description: Retrieve all policies for a tenant provider.
+      operationId: getTenantProviderPolicies
+      tags:
+        - TenantProviderPolicies
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/TenantProviderId'
+      responses:
+        $ref: '#/components/responses/CommonErrors'
+        200:
+          description: Tenant provider policies retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TenantProviderPolicy'
+    post:
+      summary: Create policy
+      description: Create a new policy for a tenant provider.
+      operationId: createTenantProviderPolicy
+      tags:
+        - TenantProviderPolicies
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/TenantProviderId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTenantProviderPolicyRequest'
+      responses:
+        $ref: '#/components/responses/CommonErrors'
+        201:
+          description: Policy created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantProviderPolicy'
+
+  /v1/tenants/{tenantId}/providers/{providerId}/policies/{policyId}:
+    get:
+      summary: Get policy
+      description: Retrieve a policy by its ID.
+      operationId: getTenantProviderPolicy
+      tags:
+        - TenantProviderPolicies
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/TenantProviderId'
+        - $ref: '#/components/parameters/TenantProviderPolicyId'
+      responses:
+        $ref: '#/components/responses/CommonErrors'
+        200:
+          description: Policy retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantProviderPolicy'
+    delete:
+      summary: Delete policy
+      description: Delete a policy by its ID.
+      operationId: deleteTenantProviderPolicy
+      tags:
+        - TenantProviderPolicies
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/TenantProviderId'
+        - $ref: '#/components/parameters/TenantProviderPolicyId'
+      responses:
+        $ref: '#/components/responses/CommonErrors'
+        204:
+          description: Policy deleted successfully.
 
 components:
   securitySchemes:
@@ -559,6 +637,44 @@ components:
       type: string
       description: Name of the domain.
 
+    TenantProviderPolicyName:
+      type: string
+      description: Name of the policy.
+      example: Policy Name
+
+    TenantProviderPolicyDescription:
+      type: string
+      description: Description of the policy.
+      example: Policy Description
+
+    TenantProviderPolicyAudience:
+      type: string
+      description: Audience of the policy.
+      example: sts.amazonaws.com
+
+    TenantProviderPolicyCondition:
+      type: object
+      description: Condition of the policy.
+      properties:
+        key:
+          type: string
+          description: Key of the condition.
+          example: sub
+        operator:
+          type: string
+          description: Operator of the condition.
+          example: stringEquals
+        value:
+          type: string
+          description: Value of the condition.
+          example: repo:usegrant/usegrant-api/*
+
+    TenantProviderPolicyConditions:
+      type: array
+      description: Conditions of the policy.
+      items:
+        $ref: '#/components/schemas/TenantProviderPolicyCondition'
+
     CreateProviderRequest:
       type: object
       description: Payload for creating a new provider.
@@ -640,6 +756,24 @@ components:
         - fingerprints
         - audience
         - earliestIssuanceTimeAllowed
+
+    CreateTenantProviderPolicyRequest:
+      type: object
+      description: Payload for creating a new policy for a tenant provider.
+      properties:
+        name:
+          $ref: '#/components/schemas/TenantProviderPolicyName'
+        description:
+          $ref: '#/components/schemas/TenantProviderPolicyDescription'
+        audience:
+          $ref: '#/components/schemas/TenantProviderPolicyAudience'
+        conditions:
+          $ref: '#/components/schemas/TenantProviderPolicyConditions'
+      required:
+        - name
+        - description
+        - audience
+        - conditions
 
     AddDomainRequest:
       type: object
@@ -751,6 +885,48 @@ components:
         - fingerprint
         - audience
         - earliestIssuanceTimeAllowed
+
+    TenantProviderPolicy:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 9b2e4d7a-8c3f-4b2a-9a1e-2d3c4e5f6a7b
+        name:
+          type: string
+          example: Policy Name
+        description:
+          type: string
+          example: Policy Description
+        audience:
+          type: string
+          example: sts.amazonaws.com
+        conditions:
+          type: array
+          items:
+            type: object
+            properties:
+              key:
+                type: string
+              operator:
+                type: string
+                enum:
+                  - stringEquals
+                  - stringLike
+                  - stringNotEquals
+                  - stringNotLike
+              value:
+                type: string
+            example:
+              key: 'sub'
+              operator: 'stringEquals'
+              value: '1234567890'
+      required:
+        - id
+        - name
+        - description
+        - audience
+        - conditions
 
     Error:
       type: object
