@@ -174,7 +174,7 @@ paths:
               $ref: '#/components/schemas/CreateTokenRequest'
       responses:
         $ref: '#/components/responses/CommonErrors'
-        201:
+        200:
           description: Token created successfully.
           content:
             application/json:
