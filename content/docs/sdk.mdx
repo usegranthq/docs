@@ -5,14 +5,11 @@ description: Typesafe TypeScript SDK for UseGrant API
 
 ## Installation
 
-SDK can be installed using [npm], [bun] or [pnpm] package managers:
+We provide a typesafe TypeScript SDK for UseGrant API.
+It can be installed from the npm registry using by a favorite package manager of your choice:
 
 ```bash
 npm install @usegrant/sdk
-# or
-bun install @usegrant/sdk
-# or
-pnpm install @usegrant/sdk
 ```
 
 ## Authentication
@@ -21,6 +18,23 @@ To use the SDK, you need to have an API key. You can create one in the [UseGrant
 
 - The token is invalid, check if you have copied the token correctly. Also make sure the token is in format `uga_<token>`.
 - The token has expired, you can create a new token and replace the existing token.
+
+Refer to the [authentication](/auth) page for more details.
+
+## Rate Limiting
+
+The API has a default rate limit of `1000 requests per hour` per API token. If you exceed this limit, requests will receive a `429 Too Many Requests` response with a `Retry-After` header indicating when you can resume making requests.
+
+To handle rate limits gracefully, we recommend:
+
+- Implementing exponential backoff and retry logic
+- Actively monitoring your API usage to ensure it remains within the set limits
+- Caching responses where appropriate
+
+If you need a higher rate limit, please contact us at [support@usegrant.dev](mailto:support@usegrant.dev). We can evaluate your use case and either:
+
+- Increase your rate limit if the request is reasonable
+- Work with you on a custom plan that meets your scale requirements
 
 ## Usage
 
