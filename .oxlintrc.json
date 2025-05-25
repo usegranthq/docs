@@ -1,0 +1,3 @@
+{
+  "plugins": ["oxc", "typescript", "unicorn", "react", "nextjs", "import", "jsx-a11y", "vitest", "promise"]
+}

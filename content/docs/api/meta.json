@@ -1,4 +1,4 @@
 {
   "defaultOpen": true,
-  "pages": ["providers", "clients", "..."]
+  "pages": ["providers", "clients", "domains", "accesstokens", "tenants", "..."]
 }

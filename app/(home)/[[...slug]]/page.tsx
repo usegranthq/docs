@@ -1,10 +1,24 @@
 import { notFound } from 'next/navigation';
-import defaultMdxComponents from 'fumadocs-ui/mdx';
-import { DocsBody, DocsCategory, DocsDescription, DocsPage, DocsTitle } from 'fumadocs-ui/page';
+import { getPageTreePeers } from 'fumadocs-core/server';
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { DocsBody, DocsDescription, DocsPage, DocsTitle } from 'fumadocs-ui/page';
 
 import { metadataImage } from '@/lib/metadata';
-import { openapi, source } from '@/lib/source';
+import { source } from '@/lib/source';
+import { getMDXComponents } from '@/mdx-components';
 import { getSiteUrl } from '@/utils/site';
+
+function DocsCategory({ url }: { url: string }) {
+  return (
+    <Cards>
+      {getPageTreePeers(source.pageTree, url).map((peer) => (
+        <Card key={peer.url} title={peer.name} href={peer.url}>
+          {peer.description}
+        </Card>
+      ))}
+    </Cards>
+  );
+}
 
 export default async function Page(props: { params: Promise<{ slug?: string[] }> }) {
   const params = await props.params;
@@ -25,8 +39,8 @@ export default async function Page(props: { params: Promise<{ slug?: string[] }>
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody>
-        <MDX components={{ ...defaultMdxComponents, APIPage: openapi.APIPage }} />
-        {page.data.index ? <DocsCategory page={page} from={source} /> : null}
+        <MDX components={getMDXComponents()} />
+        {page.data.index ? <DocsCategory url={page.url} /> : null}
       </DocsBody>
     </DocsPage>
   );

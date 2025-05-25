@@ -1,18 +1,22 @@
-import { generateFiles } from 'fumadocs-openapi';
-import { rimrafSync } from 'rimraf';
+import * as OpenAPI from 'fumadocs-openapi';
+import { rimraf } from 'rimraf';
 
 const out = './content/docs/api';
 
-// clean generated files
-rimrafSync(out, {
-  filter(v) {
-    return !v.endsWith('index.mdx') && !v.endsWith('meta.json');
-  },
-});
+async function generate() {
+  // clean generated files
+  await rimraf(out, {
+    filter(v) {
+      return !v.endsWith('index.mdx') && !v.endsWith('meta.json');
+    },
+  });
 
-void generateFiles({
-  // input files
-  input: ['./openapi.yaml'],
-  output: out,
-  groupBy: 'tag',
-});
+  await OpenAPI.generateFiles({
+    input: ['./openapi.yaml'],
+    output: out,
+    includeDescription: true,
+    groupBy: 'tag',
+  });
+}
+
+void generate();

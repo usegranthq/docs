@@ -983,6 +983,8 @@ tags:
     description: Access tokens are generated for a client and can be used to access your target API.
   - name: Tenants
     description: Tenants are the group of identitiy provider which you can validate clients against.
+  - name: TenantProviderPolicies
+    description: Policies for tenant providers
 
 security:
   - BearerAuth: []
