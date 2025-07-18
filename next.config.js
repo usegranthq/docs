@@ -7,6 +7,7 @@ const config = {
   reactStrictMode: true,
   basePath: '/docs',
   assetPrefix: '/docs-static',
+  output: 'standalone',
   async redirects() {
     return [
       {

@@ -1,15 +1,10 @@
 name: Deploy to Vercel
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - master
-
-env:
-  NODE_VERSION: 22
-  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-  HUSKY: 0
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -18,17 +13,26 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    environment: production
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
+      - name: Setup docker
+        uses: docker/setup-docker-action@v4
 
-      - name: Install Vercel CLI
-        run: npm install -g vercel
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo "${{ secrets.HETZNER_HOST_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.HETZNER_HOST }} >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
 
-      - name: Deploy to Vercel
-        run: vercel deploy --no-wait --prod --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Deploy
+        run: docker compose up --build -d --remove-orphans
+        env:
+          DOCKER_HOST: ssh://${{ secrets.REMOTE_DOCKER_HOST }}
+          COMPOSE_BAKE: true

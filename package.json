@@ -6,10 +6,10 @@
     "genapi": "node ./scripts/generate-docs.js",
     "prebuild": "npm run genapi",
     "build": "next build",
-    "dev": "rm -rf .next && next dev --turbopack --port 7575",
+    "dev": "rm -rf .next && next dev --turbopack --port 3500",
     "start": "next start",
     "postinstall": "fumadocs-mdx",
-    "prepare": "husky && npm run genapi"
+    "prepare": "husky"
   },
   "dependencies": {
     "fast-glob": "^3.3.3",
