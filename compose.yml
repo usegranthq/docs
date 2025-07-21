@@ -1,5 +1,6 @@
 services:
   docs:
-    build: .
+    container_name: docs
+    image: ${DOCKER_REPOSITORY}:docs-${IMAGE_TAG:-latest}
     ports:
       - 3500:3500
