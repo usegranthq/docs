@@ -12,7 +12,7 @@ async function generate() {
   });
 
   await OpenAPI.generateFiles({
-    input: ['./openapi.yaml'],
+    input: ['https://sdk.usegrant.dev/open-api.json'],
     output: out,
     includeDescription: true,
     groupBy: 'tag',
