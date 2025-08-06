@@ -78,3 +78,4 @@ jobs:
         env:
           DOCKER_REPOSITORY: ${{ secrets.DOCKER_REPOSITORY }}
           DOCKER_HOST: ssh://${{ secrets.REMOTE_DOCKER_HOST }}
+          IMAGE_TAG: ${{ github.sha }}
