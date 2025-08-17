@@ -16,6 +16,12 @@ const config = {
         basePath: false,
         permanent: false,
       },
+      {
+        source: '/docs',
+        destination: '/docs/core',
+        basePath: false,
+        permanent: false,
+      },
     ];
   },
 };

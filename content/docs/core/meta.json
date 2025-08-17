@@ -1,0 +1,7 @@
+{
+  "pages": ["index", "secure", "concepts", "auth", "...", "guides"],
+  "defaultOpen": true,
+  "title": "Documentation",
+  "root": true,
+  "icon": "Container"
+}

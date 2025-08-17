@@ -1,4 +1,7 @@
 {
+  "title": "API Documentation",
+  "root": true,
+  "icon": "Shapes",
   "defaultOpen": true,
   "pages": ["providers", "clients", "domains", "accesstokens", "tenants", "..."]
 }
