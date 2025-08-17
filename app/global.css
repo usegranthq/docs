@@ -1,9 +1,7 @@
 @import 'tailwindcss';
 @import 'fumadocs-ui/css/black.css';
 @import 'fumadocs-ui/css/preset.css';
-
-@source '../node_modules/fumadocs-ui/dist/**/*.js';
-@source '../node_modules/fumadocs-openapi/dist/**/*.js';
+@import 'fumadocs-openapi/css/preset.css';
 
 @theme {
   --font-sans: var(--font-geist-sans);
