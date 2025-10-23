@@ -25,7 +25,6 @@ COPY . .
 # Learn more here: https://nextjs.org/telemetry
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN npm run genapi
 # Build the Next.js app
 RUN --mount=type=cache,target=/app/.next/cache npm run build
 
