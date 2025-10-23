@@ -56,11 +56,17 @@ export async function generateMetadata(props: { params: Promise<{ slug?: string[
 
   if (!page) notFound();
 
-  const metadataBase = new URL(getSiteUrl());
+  const slug = Array.isArray(params.slug) ? params.slug.join('/') : params.slug;
+
+  // const metadataBase = new URL(getSiteUrl());
 
   return createMetadata({
     title: page.data.title,
     description: page.data.description ?? 'Usegrant documentation',
     keywords: page.data.keywords,
+    // metadataBase,
+    openGraph: {
+      images: [`/docs-og/${slug}/image.png`],
+    },
   });
 }
