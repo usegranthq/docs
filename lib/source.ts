@@ -1,7 +1,7 @@
 import { createElement } from 'react';
 import { loader } from 'fumadocs-core/source';
-import { createMDXSource } from 'fumadocs-mdx';
-import { attachFile } from 'fumadocs-openapi/server';
+import { createMDXSource } from 'fumadocs-mdx/runtime/next';
+import { openapiPlugin } from 'fumadocs-openapi/server';
 import { icons } from 'lucide-react';
 
 import { docs, meta } from '@/.source';
@@ -16,7 +16,5 @@ export const source = loader({
     }
     if (icon in icons) return createElement(icons[icon as keyof typeof icons]);
   },
-  pageTree: {
-    attachFile,
-  },
+  plugins: [openapiPlugin()],
 });

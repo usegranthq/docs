@@ -1,9 +1,9 @@
 import { notFound } from 'next/navigation';
-import { getPageTreePeers } from 'fumadocs-core/server';
+import { getPageTreePeers } from 'fumadocs-core/page-tree';
 import { Card, Cards } from 'fumadocs-ui/components/card';
 import { DocsBody, DocsDescription, DocsPage, DocsTitle } from 'fumadocs-ui/page';
 
-import { metadataImage } from '@/lib/metadata';
+import { createMetadata } from '@/lib/metadata';
 import { source } from '@/lib/source';
 import { getMDXComponents } from '@/mdx-components';
 import { getSiteUrl } from '@/utils/site';
@@ -58,10 +58,9 @@ export async function generateMetadata(props: { params: Promise<{ slug?: string[
 
   const metadataBase = new URL(getSiteUrl());
 
-  return metadataImage.withImage(page.slugs, {
-    metadataBase,
+  return createMetadata({
     title: page.data.title,
-    description: page.data.description,
+    description: page.data.description ?? 'Usegrant documentation',
     keywords: page.data.keywords,
   });
 }
