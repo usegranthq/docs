@@ -49,6 +49,12 @@ jobs:
           cache-dir: cache-mount
           skip-extraction: ${{ steps.cache.outputs.cache-hit }}
 
+      - name: Set environment variables to .env
+        uses: sibiraj-s/action-toenv@v1
+        with:
+          env: |
+            SITE_URL=${{ vars.SITE_URL }}
+
       - name: Build and push app image
         uses: docker/build-push-action@v6
         with:
@@ -70,12 +76,6 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.HETZNER_HOST }} >> ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
-
-      - name: Set environment variables to .env
-        uses: sibiraj-s/action-toenv@v1
-        with:
-          env: |
-            SITE_URL=${{ vars.SITE_URL }}
 
       - name: Deploy
         run: |
