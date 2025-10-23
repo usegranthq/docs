@@ -1,12 +1,12 @@
+// /docs is the basePath set in next.config.ts
+const basePath = '/docs';
+
 export const getSiteUrl = () => {
-  if (process.env.VERCEL_ENV === 'production') {
-    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
+  let url = `http://localhost:${process.env.PORT}`;
+
+  if (process.env.NODE_ENV === 'production') {
+    url = process.env.SITE_URL!;
   }
 
-  if (process.env.VERCEL_ENV === 'preview') {
-    const url = process.env.VERCEL_BRANCH_URL ?? process.env.VERCEL_URL;
-    return `https://${url}`;
-  }
-
-  return `http://localhost:${process.env.PORT || 3000}`;
+  return new URL(basePath, url);
 };

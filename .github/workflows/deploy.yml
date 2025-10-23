@@ -71,6 +71,12 @@ jobs:
           ssh-keyscan -H ${{ secrets.HETZNER_HOST }} >> ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
 
+      - name: Set environment variables to .env
+        uses: sibiraj-s/action-toenv@v1
+        with:
+          env: |
+            SITE_URL=${{ vars.SITE_URL }}
+
       - name: Deploy
         run: |
           echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
