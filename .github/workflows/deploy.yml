@@ -49,6 +49,9 @@ jobs:
           cache-dir: cache-mount
           skip-extraction: ${{ steps.cache.outputs.cache-hit }}
 
+      - name: Prepare image tag
+        run: echo "DOCKER_IMAGE_TAG=sha-${GITHUB_SHA::7}" >> $GITHUB_ENV
+
       - name: Set environment variables to .env
         uses: sibiraj-s/action-toenv@v1
         with:
@@ -63,7 +66,7 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            ${{ secrets.DOCKER_REPOSITORY }}:docs-${{ github.sha }}
+            ${{ secrets.DOCKER_REPOSITORY }}:docs-${{ env.DOCKER_IMAGE_TAG }}
             ${{ secrets.DOCKER_REPOSITORY }}:docs-latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -84,4 +87,4 @@ jobs:
         env:
           DOCKER_REPOSITORY: ${{ secrets.DOCKER_REPOSITORY }}
           DOCKER_HOST: ssh://${{ secrets.REMOTE_DOCKER_HOST }}
-          IMAGE_TAG: ${{ github.sha }}
+          IMAGE_TAG: ${{ env.DOCKER_IMAGE_TAG }}
