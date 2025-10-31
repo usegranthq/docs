@@ -11,9 +11,7 @@ WORKDIR /app
 # Install dependencies based on the preferred package manager
 COPY package.json package-lock.json* .npmrc* source.config.ts ./
 
-RUN --mount=type=cache,target=/var/cache/npm,uid=0,gid=0 \
-    npm config set cache /var/cache/npm && \
-    npm ci
+RUN --mount=type=cache,target=/app/.next/cache npm run build
 
 # Rebuild the source code only when needed
 FROM base AS builder
