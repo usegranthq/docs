@@ -8,14 +8,13 @@ FROM base AS deps
 # RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Install dependencies based on the preferred package manager
-COPY package.json package-lock.json* .npmrc* source.config.ts ./
-
-# install corepack and enable it
+# install and enable corepack
 RUN npm install -g corepack@latest
 RUN corepack enable
-RUN corepack install
 
+# Install dependencies based on the preferred package manager
+COPY package.json package-lock.json* .npmrc* source.config.ts ./
+RUN corepack install
 RUN --mount=type=cache,target=/root/.npm npm ci
 
 # Rebuild the source code only when needed
