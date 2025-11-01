@@ -13,7 +13,8 @@ RUN npm install -g corepack@latest
 RUN corepack enable
 
 # Install dependencies based on the preferred package manager
-COPY package.json package-lock.json* .npmrc* source.config.ts next.config.ts ./
+COPY package.json package-lock.json* .npmrc* ./
+COPY source.config.ts next.config.ts ./
 RUN corepack install
 RUN --mount=type=cache,target=/root/.npm npm ci
 
