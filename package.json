@@ -2,6 +2,7 @@
   "name": "docs",
   "type": "module",
   "private": true,
+  "packageManager": "npm@11.6.2",
   "scripts": {
     "genapi": "tsx ./scripts/generate-docs.ts",
     "prebuild": "npm run genapi",

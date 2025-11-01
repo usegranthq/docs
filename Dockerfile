@@ -8,6 +8,11 @@ FROM base AS deps
 # RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
+# install corepack and enable it
+RUN npm install -g corepack@latest
+RUN corepack enable
+RUN corepack install -g
+
 # Install dependencies based on the preferred package manager
 COPY package.json package-lock.json* .npmrc* source.config.ts ./
 
