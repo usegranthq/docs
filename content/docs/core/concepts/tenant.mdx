@@ -7,7 +7,7 @@ keywords:
   - Token Validation
 ---
 
-A tenant is a logical entity that validates tokens against configured identity providers.
+A tenant is like an identity broker, a logical entity that validates tokens against configured identity providers.
 Each tenant can have multiple unique providers configured to handle different authentication sources.
 
 <Callout title="Caution" type="warn">
@@ -17,26 +17,26 @@ Each tenant can have multiple unique providers configured to handle different au
 </Callout>
 
 **Tenant Provider**:
+
 A tenant provider is equivalent to a single identity provider. For example, if you are using Google as an identity provider,
 you need to create a provider for Google.
 
 ### Illustration
 
-Let's walk through an illustration of how a tenant validates tokens in a GitHub Actions workflow:
+Let's walk through an illustration of how a tenant validates tokens a typical user request workflow:
 
-![github action](/images/github-actions.png)
+![github action](/images/tenant-illustration.png)
 
-When a github action is triggered, it will validate the token against the tenant's provider.
 The workflow is as follows:
 
-1. The GitHub Action requests a token from GitHub's token server.
-2. GitHub's token server issues a JWT token and returns it to the GitHub Action.
-3. The GitHub Action sends the JWT token to your server for validation.
-4. Your server forwards the JWT token to UseGrant for verification.
-5. UseGrant extracts the tenant details from the JWT token and checks for a matching configured provider.
-   If a match is found, it fetches the provider's public key.
-6. UseGrant verifies the token's integrity by validating the signature, expiration, sub, aud and other security parameters.
-7. UseGrant returns the validation result with token expiration time to your server.
-8. If the token is valid, your server grants access to the GitHub Action, allowing the request to proceed.
+1. The user will request a token from token server or Identity provider.
+   The token server issues a JWT token and returns it to the user
+2. The user now sends the JWT token to your server for validation.
+3. Your server sends a request with the JWT token to UseGrant for verification.
+4. UseGrant extracts the provider details from the JWT token and checks for a matching configured provider.
+   If a match is found, it fetches the provider's public key from the provider's configuration and verifies the token's integrity by validating the signature, expiration, sub, aud and other security parameters.
+5. UseGrant returns the validation result with token expiration time to your server.
+6. If the token is valid, your server grants access to the user or generates a new temporary token for allowing the
+   request to proceed.
 
-This is a simple example illustrating how a tenant validates tokens in a GitHub Actions workflow. This logic will be the same for any other server.
+This is a simple example illustrating how a tenant validates tokens in a typical workflow. This logic will be the same for any other server.
