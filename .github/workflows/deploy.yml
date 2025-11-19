@@ -40,7 +40,7 @@ jobs:
         id: cache
         with:
           path: cache-mount
-          key: cache-mount-${{ hashFiles('Dockerfile') }}
+          key: cache-mount-${{ hashFiles('Dockerfile', 'package-*.json') }}
 
       - name: Inject docker mount cache
         uses: reproducible-containers/buildkit-cache-dance@v3
