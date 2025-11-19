@@ -9,7 +9,7 @@
     "build": "next build",
     "dev": "rm -rf .next && next dev --port 3500",
     "start": "next start",
-    "postinstall": "fumadocs-mdx && next typegen",
+    "postinstall": "fumadocs-mdx",
     "prepare": "husky"
   },
   "dependencies": {
