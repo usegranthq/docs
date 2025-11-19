@@ -1,7 +1,7 @@
 import * as OpenAPI from 'fumadocs-openapi';
 import { rimraf } from 'rimraf';
 
-import { openapi } from '@/lib/open-api';
+import { openapi } from '@/lib/openapi';
 
 const out = './content/docs/api';
 
