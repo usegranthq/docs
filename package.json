@@ -1,8 +1,7 @@
 {
   "name": "docs",
-  "type": "module",
   "private": true,
-  "packageManager": "npm@11.6.2",
+  "type": "module",
   "scripts": {
     "genapi": "tsx ./scripts/generate-docs.ts",
     "prebuild": "npm run genapi",
@@ -37,11 +36,12 @@
     "commitlint-config-non-conventional": "^1.0.1",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
+    "oxfmt": "^0.42.0",
     "oxlint": "^1.57.0",
     "postcss": "^8.5.8",
-    "prettier": "^3.8.1",
     "tailwindcss": "^4.2.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
-  }
+  },
+  "packageManager": "npm@11.6.2"
 }

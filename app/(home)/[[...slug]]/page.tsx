@@ -1,12 +1,17 @@
-import { notFound } from 'next/navigation';
-import { getPageTreePeers } from 'fumadocs-core/page-tree';
-import { Card, Cards } from 'fumadocs-ui/components/card';
-import { DocsBody, DocsDescription, DocsPage, DocsTitle } from 'fumadocs-ui/page';
+import { getPageTreePeers } from "fumadocs-core/page-tree";
+import { Card, Cards } from "fumadocs-ui/components/card";
+import {
+  DocsBody,
+  DocsDescription,
+  DocsPage,
+  DocsTitle,
+} from "fumadocs-ui/page";
+import { notFound } from "next/navigation";
 
-import { createMetadata } from '@/lib/metadata';
-import { source } from '@/lib/source';
-import { getMDXComponents } from '@/mdx-components';
-import { getSiteUrl } from '@/utils/site';
+import { createMetadata } from "@/lib/metadata";
+import { source } from "@/lib/source";
+import { getMDXComponents } from "@/mdx-components";
+import { getSiteUrl } from "@/utils/site";
 
 function DocsCategory({ url }: { url: string }) {
   return (
@@ -20,7 +25,9 @@ function DocsCategory({ url }: { url: string }) {
   );
 }
 
-export default async function Page(props: { params: Promise<{ slug?: string[] }> }) {
+export default async function Page(props: {
+  params: Promise<{ slug?: string[] }>;
+}) {
   const params = await props.params;
   const page = source.getPage(params.slug);
   if (!page) notFound();
@@ -32,7 +39,7 @@ export default async function Page(props: { params: Promise<{ slug?: string[] }>
       toc={page.data.toc}
       full={page.data.full}
       tableOfContent={{
-        style: 'clerk',
+        style: "clerk",
         single: false,
       }}
     >
@@ -50,17 +57,19 @@ export async function generateStaticParams() {
   return source.generateParams();
 }
 
-export async function generateMetadata(props: { params: Promise<{ slug?: string[] }> }) {
+export async function generateMetadata(props: {
+  params: Promise<{ slug?: string[] }>;
+}) {
   const params = await props.params;
   const page = source.getPage(params.slug);
 
   if (!page) notFound();
 
-  const slug = Array.isArray(params.slug) ? params.slug.join('/') : params.slug;
+  const slug = Array.isArray(params.slug) ? params.slug.join("/") : params.slug;
 
   return createMetadata({
     title: page.data.title,
-    description: page.data.description ?? 'Usegrant documentation',
+    description: page.data.description ?? "Usegrant documentation",
     keywords: page.data.keywords,
     metadataBase: getSiteUrl(),
     openGraph: {

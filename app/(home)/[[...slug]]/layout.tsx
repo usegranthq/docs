@@ -1,10 +1,10 @@
-import type { ReactNode } from 'react';
-import { DocsLayout, DocsLayoutProps } from 'fumadocs-ui/layouts/docs';
+import { DocsLayout, DocsLayoutProps } from "fumadocs-ui/layouts/docs";
+import type { ReactNode } from "react";
 
-import { source } from '@/lib/source';
-import { baseOptions } from '@/app/layout.config';
+import { baseOptions } from "@/app/layout.config";
+import { source } from "@/lib/source";
 
-import Pattern from './Pattern';
+import Pattern from "./Pattern";
 
 const doscOptions: DocsLayoutProps = {
   ...baseOptions,
@@ -15,7 +15,7 @@ const doscOptions: DocsLayoutProps = {
         const meta = source.getNodeMeta(node);
         if (!meta || !node.icon) return option;
 
-        const color = `var(--${meta.path.split('/')[0]}-color, var(--color-fd-foreground))`;
+        const color = `var(--${meta.path.split("/")[0]}-color, var(--color-fd-foreground))`;
 
         return {
           ...option,
@@ -24,7 +24,7 @@ const doscOptions: DocsLayoutProps = {
               className="[&_svg]:size-4 flex items-center justify-center rounded-lg size-full text-(--tab-color) max-md:bg-(--tab-color)/10 max-md:border max-md:p-1.5"
               style={
                 {
-                  '--tab-color': color,
+                  "--tab-color": color,
                 } as object
               }
             >
