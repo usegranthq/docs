@@ -8,7 +8,9 @@ import {
 } from "fumadocs-ui/page";
 import { notFound } from "next/navigation";
 
+import { APIPage } from "@/components/api-page";
 import { createMetadata } from "@/lib/metadata";
+import { openapi } from "@/lib/openapi";
 import { source } from "@/lib/source";
 import { getMDXComponents } from "@/mdx-components";
 import { getSiteUrl } from "@/utils/site";
@@ -46,7 +48,13 @@ export default async function Page(props: {
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody>
-        <MDX components={getMDXComponents()} />
+        <MDX
+          components={getMDXComponents({
+            APIPage: async (props) => (
+              <APIPage {...await openapi.preloadOpenAPIPage(page)} {...props} />
+            ),
+          })}
+        />
         {page.data.index ? <DocsCategory url={page.url} /> : null}
       </DocsBody>
     </DocsPage>
