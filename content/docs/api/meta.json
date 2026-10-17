@@ -3,5 +3,13 @@
   "root": true,
   "icon": "Shapes",
   "defaultOpen": true,
-  "pages": ["providers", "clients", "domains", "accesstokens", "tenants", "..."]
+  "pages": [
+    "index",
+    "providers",
+    "clients",
+    "domains",
+    "accesstokens",
+    "tenants",
+    "..."
+  ]
 }
