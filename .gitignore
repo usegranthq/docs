@@ -361,6 +361,7 @@ $RECYCLE.BIN/
 
 # FumaDocs
 content/docs/api/**/*.mdx
+!content/docs/api/index.mdx
 .source/
 content-collections/
 contentlayer/
