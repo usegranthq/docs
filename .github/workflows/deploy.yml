@@ -11,7 +11,6 @@ concurrency:
 
 env:
   NODE_VERSION: 24
-  VERCEL_CLI_VERSION: 64.5.0
   NEXT_TELEMETRY_DISABLED: 1
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
@@ -37,15 +36,9 @@ jobs:
           cache: npm
 
       - name: Install Vercel CLI
-        run: npm install --global vercel@${{ env.VERCEL_CLI_VERSION }}
+        run: npm install --global vercel@latest
 
-      # pulls project settings and production environment variables (SITE_URL) from Vercel
-      - name: Pull Vercel environment
-        run: vercel pull --yes --environment=production
-
+      # uploads the source and builds on Vercel, where sensitive env vars (SITE_URL) are available
       # prebuild fetches https://sdk.usegrant.dev/open-api.json to generate the API pages
-      - name: Build
-        run: vercel build --prod
-
       - name: Deploy
-        run: vercel deploy --prebuilt --prod
+        run: vercel deploy --prod
