@@ -364,3 +364,4 @@ content/docs/api/**/*.mdx
 .source/
 content-collections/
 contentlayer/
+.env*

@@ -50,7 +50,7 @@ export default async function Page(props: {
       <DocsBody>
         <MDX
           components={getMDXComponents({
-            APIPage: async (props) => (
+            OpenAPIPage: async (props) => (
               <APIPage {...await openapi.preloadOpenAPIPage(page)} {...props} />
             ),
           })}
