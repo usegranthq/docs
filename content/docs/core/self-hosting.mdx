@@ -74,6 +74,13 @@ DOCKER_REPOSITORY=usegrant docker compose up -d
 Compose waits for the database, runs the migrations, then starts the app and the cron service.
 The app listens on port `3000`. Point your reverse proxy at it for both `SITE_URL` and `PROVIDER_DOMAIN`.
 
+<Callout title="Reverse proxy">
+  The proxy must forward the original host in the `X-Forwarded-Host` header.
+  useGrant uses it to serve provider discovery documents and signing keys under
+  `PROVIDER_DOMAIN`. Caddy and Traefik send it by default, with nginx add
+  `proxy_set_header X-Forwarded-Host $host;`.
+</Callout>
+
 ## 5. Use your instance
 
 - The dashboard is served at `SITE_URL`.

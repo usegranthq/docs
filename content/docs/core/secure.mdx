@@ -22,8 +22,8 @@ Limiting what is stored also limits the impact of a data breach.
 Each provider gets its own private keys to sign tokens. Private keys never leave useGrant,
 only the public keys are published so that relying parties can verify signatures.
 
-You can enable key rotation per provider. Every scheduled run of the cron job then adds a new signing key and removes keys older than 24 hours.
-With the bundled Docker Compose setup, the cron job runs every two hours.
+You can enable key rotation per provider. A new signing key is then generated once a day.
+Old keys stay published for as long as tokens signed with them can still be valid, up to two days, and are removed after that.
 
 ## Breach resistant
 
