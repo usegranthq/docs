@@ -1,45 +1,65 @@
 ---
-title: Neon DB
-description: Authenticate with NeonDB api using JSON Web Tokens
+title: Neon Data API
+description: Query Neon's Data API with access tokens from useGrant.
 ---
 
-You can configure UseGrant as a auth provider in NeonDB and use the generated access token
-to authenticate with the NeonDB api.
+Neon's Data API accepts JSON Web Tokens from custom authentication providers.
+You can configure useGrant as that provider and query your database over HTTP with the access tokens it issues.
 
-Follow the steps below to configure UseGrant as a auth provider in NeonDB.
+## Prerequisites
 
-1. Go to the NeonDB console and navigate to the "Settings" page.
-2. Click on the `Authorize` tab.
-3. Click on the `Setup authentication provider` button.
-4. Enter the jwk url of your UseGrant application. If you have a custom domain,
-   you can also use that domain instead of the default one.
-   - Example: `https://MY_PROJECT_URL_ID.usegrant.dev/.well-known/jwks`
-5. Add the audience of your UseGrant application.
-   - Example: `api.neon.tech` or whatever you set in the `audience` field
-     while creating the client.
-6. Click on the `Save` button.
+- A useGrant provider with a client. Set the client's audience to the value you will configure in Neon, for example `api.neon.tech`.
+- A Neon project
 
-Once you have completed the steps above, you should be able to authenticate with the NeonDB api using the generated access token.
+## Step 1: Enable the Data API
 
-Follow the [NeonDB docs](https://neon.tech/docs/guides/neon-authorize) for more information on
-how to use the NeonDB api. A typical example would look like this:
+1. In the Neon console, select your project, then **Postgres database → Data API**.
+2. Click **Enable Data API**.
+
+## Step 2: Add useGrant as an authentication provider
+
+1. On the Data API page, open the **Settings** tab.
+2. Select **Other Provider**.
+3. Enter the JWKS URL of your useGrant provider, for example `https://auth.example.com/acme-prod/.well-known/jwks`.
+   If you set up a custom domain, use `https://<CUSTOM_DOMAIN>/.well-known/jwks` instead.
+4. Enter the audience of your useGrant client as the **JWT Audience**.
+5. Save the settings.
+
+See the [Neon documentation on custom authentication providers](https://neon.com/docs/data-api/custom-authentication-providers) for more details.
+
+## Step 3: Secure your tables
+
+The Data API has no permission layer of its own, so access is controlled with `GRANT` statements and row-level security.
+Enable row-level security on every table you expose, and write policies against the token's `sub` claim with `auth.user_id()`.
+For a useGrant token, `sub` is the client's subject.
+
+```sql
+ALTER TABLE todos ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "clients read their own todos" ON todos
+  FOR SELECT USING (owner = auth.user_id());
+```
+
+<Callout title="Caution" type="warn">
+  Tables without row-level security are readable by any request with a valid
+  token.
+</Callout>
+
+## Step 4: Query the Data API
+
+Create an access token for your client and send it as a Bearer token.
+Copy your Data API URL from the Data API page in the Neon console.
 
 ```ts
-import { neon } from '@neondatabase/serverless';
+import UseGrant from "@usegrant/sdk";
 
-const ugClient = new UseGrant(process.env.USEGRANT_API_TOKEN);
+const usegrant = new UseGrant(process.env.USEGRANT_API_KEY);
 
-const getToken = async () => {
-  const token = await ugClient.createToken('providerId', 'clientId');
-  return token;
-};
+const { accessToken } = await usegrant.createToken("providerId", "clientId");
 
-const sql = neon(process.env.DATABASE_AUTHENTICATED_URL, {
-  authToken: async () => {
-    const token = await getToken();
-    return token;
-  },
+const response = await fetch(`${process.env.NEON_DATA_API_URL}/todos`, {
+  headers: { Authorization: `Bearer ${accessToken}` },
 });
 
-await sql(`select * from todos`);
+const todos = await response.json();
 ```

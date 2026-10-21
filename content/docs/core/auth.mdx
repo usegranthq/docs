@@ -1,40 +1,42 @@
 ---
 title: API Authentication
-description: Learn how to authenticate your requests to the UseGrant API.
+description: Authenticate your requests to the useGrant API.
 ---
 
-The UseGrant Rest API uses Bearer tokens for authentication. We recommend beginning with this section to learn how to securely access the API.
-From there, you can explore the guides and examples for different endpoints and see how they can help you achieve your goals.
+The useGrant REST API authenticates requests with API keys sent as Bearer tokens.
+Start here to learn how to access the API securely, then explore the guides and the API reference.
 
-To start using the UseGrant Rest API, the first step is to create an API token.
-To generate a token,
+## Create an API key
 
-1. log in to the app
-2. navigate to the settings page at `/settings/token`.
-3. provide a name for the token and click on Generate.
+1. Log in to the app.
+2. Go to **Settings → API Keys** (`/u/settings/keys`).
+3. Enter a name for the key, choose an expiration and click **Create**.
 
-Ensure that you store the token securely. For subsequent requests, the client authenticates by including this token in the `Authorization` header of HTTP requests, prefixed with "Bearer".
+Store the key securely, it is only shown once. Every API key starts with the `uga_` prefix.
+The prefix identifies it as a useGrant API key, which also makes leaked keys easy to spot with secret scanners.
 
-Example:
+## Send the key
+
+Include the key in the `Authorization` header of every request, prefixed with `Bearer`:
 
 ```http
-Authorization: Bearer uga_<token>
+Authorization: Bearer uga_<key>
 ```
 
-Note: The token you generate will have the format `uga_<token>`.
-The `uga_` prefix is used to indicate that it is a UseGrant token and it is an API token and you can also use it to identify if the token is accidentally exposed.
-
-If/When the token is expired, you will receive a `401 Unauthorized` response.
-
-In future, if we add more types of tokens, the token prefix will help you identify the nature of the token.
+If the key is missing, invalid or expired, the API responds with `401 Unauthorized`.
 
 ### Example
 
-Here is an example of how to include the Bearer token in a `curl` request to create a project:
+Create a provider with `curl`:
 
 ```bash
-curl -X POST https://sdk.usegrant.com/v1/providers \
-  -H "Authorization: Bearer <token>" \
+curl -X POST https://sdk.usegrant.dev/v1/providers \
+  -H "Authorization: Bearer uga_<key>" \
   -H "Content-Type: application/json" \
-  -d '{"name": "Acme Project", "description": "A project for testing"}'
+  -d '{"name": "acme-prod", "description": "Production workloads for Acme"}'
 ```
+
+<Callout title="Self-hosted">
+  On a self-hosted instance the API is served under `/api/sdk`, for example
+  `https://usegrant.example.com/api/sdk/v1/providers`.
+</Callout>

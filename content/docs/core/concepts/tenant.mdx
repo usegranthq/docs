@@ -1,43 +1,45 @@
 ---
 title: Tenant
-description: Explains what is a tenant and how it works.
+description: What a tenant is and how it validates tokens.
 keywords:
   - Tenant
   - Identity Provider
   - Token Validation
 ---
 
-A tenant is like an identity broker, a logical entity that validates tokens against configured identity providers.
-Each tenant can have multiple unique providers configured to handle different authentication sources.
+A tenant acts as an identity broker: it validates tokens issued by the external identity providers it trusts.
+Each tenant can trust multiple identity providers, one for each authentication source.
 
 <Callout title="Caution" type="warn">
-  If you are using tenants for your customer. You need to create one tenant per
-  one customer entity in your system. This ensures isolation of configured
-  providers for your customers, so one customer cannot accidentally validate a
-  against the wrong provider.
+  If you use tenants on behalf of your customers, create one tenant per
+  customer. This keeps each customer's identity providers isolated, so one
+  customer's tokens can never be validated against another customer's provider.
 </Callout>
 
-**Tenant Provider**:
+## Identity providers and policies
 
-A tenant provider is equivalent to a single identity provider. For example, if you are using Google as an identity provider,
-you need to create a provider for Google.
+**Identity provider**: an external OpenID Connect issuer the tenant trusts, such as GitHub Actions.
+You configure its issuer URL, the expected audience, and optionally the earliest issuance time allowed,
+which rejects tokens issued more than the given number of hours ago.
 
-### Illustration
+**Policy**: a set of rules attached to an identity provider. A policy sets the expected audience
+and optional conditions on token claims, for example `sub stringLike repo:octo-org/octo-repo:*`.
+Conditions support the `stringEquals`, `stringNotEquals`, `stringLike` and `stringNotLike` operators.
+Every token is validated against a specific policy.
 
-Let's walk through an illustration of how a tenant validates tokens a typical user request workflow:
+## Illustration
 
-![github action](/images/tenant-illustration.png)
+Here is how a tenant validates a token in a typical request flow:
 
-The workflow is as follows:
+<TenantFlow />
 
-1. The user will request a token from token server or Identity provider.
-   The token server issues a JWT token and returns it to the user
-2. The user now sends the JWT token to your server for validation.
-3. Your server sends a request with the JWT token to UseGrant for verification.
-4. UseGrant extracts the provider details from the JWT token and checks for a matching configured provider.
-   If a match is found, it fetches the provider's public key from the provider's configuration and verifies the token's integrity by validating the signature, expiration, sub, aud and other security parameters.
-5. UseGrant returns the validation result with token expiration time to your server.
-6. If the token is valid, your server grants access to the user or generates a new temporary token for allowing the
-   request to proceed.
+1. The client requests a token from its identity provider, which issues a signed JWT.
+2. The client sends the JWT to your server.
+3. Your server asks useGrant to validate the token against a tenant policy.
+4. useGrant matches the token's issuer to an identity provider configured on the tenant, then checks the header type,
+   expiration, issuance time, audience and policy conditions. Finally, it fetches the provider's public keys
+   through OpenID Connect discovery and verifies the signature.
+5. useGrant returns the result, including the token's expiration time, to your server.
+6. If the token is valid, your server grants access or issues its own short-lived token for the request.
 
-This is a simple example illustrating how a tenant validates tokens in a typical workflow. This logic will be the same for any other server.
+This flow is the same no matter which identity provider issued the token.

@@ -1,18 +1,19 @@
 ---
 title: Introduction
-description: UseGrant official Documentation
+description: What useGrant is and how it fits into your infrastructure.
 index: true
 ---
 
-Welcome to the documentation for the UseGrant.
-This documentation will help you understand UseGrant and how you can obtain access tokens from usegrant
-and use the tokens to securely between your machine and target using openid connect with examples.
+useGrant is an open-source OpenID Connect provider built for machine-to-machine authentication.
+Your services request short-lived access tokens using the OAuth 2.0 client credentials grant,
+and exchange them with cloud providers and other systems that trust OpenID Connect, without storing long-lived secrets.
 
-UseGrant essentially functions as an OpenID provider, specifically designed for `machine-to-machine authentication`,
-i.e. client credentials flow, but heavily customizable.
+useGrant works in both directions:
 
-UseGrant's architecture allows you to dynamically create and manage providers on the fly. You can spin up dynamic providers using the API,
-assign custom domains to each, ensuring they operate as completely isolated environments.
+- **Issue tokens.** Create providers on the fly through the API, each with its own issuer URL, signing keys and optional custom domain,
+  so every provider operates as a fully isolated environment. Add clients to a provider and mint tokens for them on demand.
+- **Validate tokens.** Create tenants that trust external identity providers such as GitHub Actions,
+  and validate their tokens against policies you define.
 
-The UseGrant Rest API allows you to interact with UseGrant services programmatically. You can create and manage providers and
-clients, and generate short-lived tokens for authenticated requests.
+Everything is available through the REST API and the [TypeScript SDK](/core/sdk).
+Start with [API Authentication](/core/auth) to create an API key, then follow one of the [guides](/core/guides).

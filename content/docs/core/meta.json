@@ -1,5 +1,15 @@
 {
-  "pages": ["index", "secure", "concepts", "auth", "...", "guides"],
+  "pages": [
+    "index",
+    "quickstart",
+    "auth",
+    "sdk",
+    "concepts",
+    "guides",
+    "self-hosting",
+    "secure",
+    "..."
+  ],
   "defaultOpen": true,
   "title": "Documentation",
   "root": true,

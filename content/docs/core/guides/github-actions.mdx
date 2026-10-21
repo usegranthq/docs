@@ -1,40 +1,45 @@
 ---
-title: Trust relations with GitHub Actions
-description: Guide to add Github Action to the tenant as a trusted identity provider
+title: Trust GitHub Actions
+description: Add GitHub Actions to a tenant as a trusted identity provider.
 keywords:
   - Trust relations with GitHub Actions
   - GitHub Actions OIDC provider
   - GitHub Actions OIDC provider setup
 ---
 
-## Adding a trust relationship for GitHub Actions
+## Add GitHub Actions as an identity provider
 
-To add a trust relationship for GitHub Actions, you can go through the following steps:
+1. Create a new [tenant](/core/concepts/tenant) or open an existing one.
+2. Click **Add identity provider**.
+3. Enter `https://token.actions.githubusercontent.com` as the provider URL.
+4. Click **Fetch fingerprint** to fetch the provider's certificate fingerprint.
+5. Enter the audience your workflows use when requesting tokens.
+6. Click **Add identity provider**.
 
-- Create a new tenent or use an existing one
-- Click Add identity provider
-- Use `https://token.actions.githubusercontent.com` as the provider URL
-- Click `Fetch fingerprint` to fetch the fingerprint of the provider
-- Set the audience that is used to generate the token
-- Set the subject to `repo:octo-org/octo-repo:ref:refs/heads/octo-branch`. Replace the values with the actual repository details.
-- Click `Add identity provider`
+## Add a policy
 
-You can also use `*` as a wildcard operator in subject using the `stringLike` operator to allow any branch,
-pull request merge branch, or environment from the octo-org/octo-repo.
-For example, `repo:octo-org/octo-repo:*`.
+Policies decide which workflows are allowed. Open the identity provider and add a policy:
 
-Also, ensure your workflow sets the `id-token: write` permission to allow GitHub's OIDC provider to create a JSON Web Token for every run.
+1. Enter a name, a description and the expected audience.
+2. Add a condition on the `sub` claim, for example `stringEquals` with `repo:octo-org/octo-repo:ref:refs/heads/main`.
+   Replace the values with your own repository details.
+3. Save the policy.
+
+Use the `stringLike` operator with `*` as a wildcard to allow any branch, pull request or environment
+of a repository, for example `repo:octo-org/octo-repo:*`.
 
 <Callout title="Note" type="info">
-  By default, audience is the URL of the repository owner, such as the organization that owns the repository. You can set a custom audience with a toolkit command: `core.getIDToken(audience)`.
+  By default, the audience is the URL of the repository owner, such as the organization that owns the repository.
+  You can set a custom audience with the toolkit's `core.getIDToken(audience)` function.
 
-Refer: [GitHub's security hardening with OpenID Connect](https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/about-security-hardening-with-openid-connect#understanding-the-oidc-token) for how claims are generated.
+See [GitHub's guide to security hardening with OpenID Connect](https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/about-security-hardening-with-openid-connect#understanding-the-oidc-token) for how the claims are generated.
 
 </Callout>
 
-### How to generate id-token in Github Actions
+## Generate an ID token in GitHub Actions
 
-You can generate an ID token inside a workflow using the `actions/toolkit` package.
+Your workflow needs the `id-token: write` permission to request an ID token from GitHub's OIDC provider.
+You can then generate a token with the `actions/toolkit` package:
 
 ```yaml
 name: Generate ID token
@@ -56,13 +61,25 @@ jobs:
             console.log(idToken);
 ```
 
-To get ID token with a custom audience, you can pass the audience as an argument to the `core.getIDToken` function.
+To request a token with a custom audience, pass the audience to `core.getIDToken`:
 
 ```js
-import * as core from '@actions/core';
+import * as core from "@actions/core";
 
-const idToken = await core.getIDToken('https://api.example.com');
+const idToken = await core.getIDToken("https://api.example.com");
 console.log(idToken);
 ```
 
-Refer to the [core package](https://github.com/actions/toolkit/tree/main/packages/core#oidc-token) for more details.
+See the [core package](https://github.com/actions/toolkit/tree/main/packages/core#oidc-token) for more details.
+
+## Validate the token
+
+Send the token to your server, then validate it against the tenant policy:
+
+```ts
+import UseGrant from "@usegrant/sdk";
+
+const usegrant = new UseGrant(process.env.USEGRANT_API_KEY);
+
+const { exp } = await usegrant.validateToken("tenantId", "policyId", idToken);
+```

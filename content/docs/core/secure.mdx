@@ -1,48 +1,48 @@
 ---
 title: Security
-description: Learn about UseGrant's security features
+description: How useGrant keeps your tokens and data secure.
 ---
 
-The system is built on and for `zero trust`.
-Your service implementations and use cases remain completely private with you, on your servers.
+useGrant is built for zero trust. Your services, workloads and use cases stay private, on your own infrastructure.
+useGrant only issues and validates tokens, it never needs access to the resources those tokens unlock.
 
-Information we collect: your signup email, sole purpose is to authenticate you to the app.
-It is not used with the oauth implementation in any way.
-We do not collect or store any data about your services or intended usage patterns.
+## What is stored
 
-Logs: We only log essential system information (never any user data) to ensure the app operates as expected.
-These logs are retained for a short period, with most being cleared within 24 hours and none kept for more than 30 days.
+useGrant stores only what it needs to work:
 
-We also issue private keys for your project, which are used to sign the tokens.
-These private keys are never exposed to the public and are only used to sign the tokens.
-Also, these private keys can be configured to be rotated every 24 hours.
+- Your account email, used solely to sign you in to the app. It is never part of the OAuth flow.
+- The providers, clients, domains, tenants and policies you configure.
+- The signing keys for your providers.
 
-This ensures maximum privacy and reduces the risk of sensitive information being exposed.
-By limiting the data we store, we minimize the potential impact of any data breaches.
+Nothing about your services or how you use the tokens is collected.
+Limiting what is stored also limits the impact of a data breach.
 
-### Breach Resistant
+## Signing keys
 
-These measures make the system breach resistant. We make sure all the best practices are followed to ensure the security of the system.
-But, even in the unlikely event of a breach, there is no actionable information at risk. Only you use our services,
-not the other way around.
+Each provider gets its own private keys to sign tokens. Private keys never leave useGrant,
+only the public keys are published so that relying parties can verify signatures.
 
-During the authentication process, your service will contact the following public endpoints to verify the token if it signed by us.
+You can enable key rotation per provider. Every scheduled run of the cron job then adds a new signing key and removes keys older than 24 hours.
+With the bundled Docker Compose setup, the cron job runs every two hours.
 
-First, your service will contact the following endpoint to discover the URL of the `jwks` endpoint.
+## Breach resistant
+
+Even in the unlikely event of a breach, there is little actionable information at risk:
+useGrant holds no credentials to your cloud accounts, and the tokens it issues are short-lived.
+
+## How tokens are verified
+
+Relying parties such as AWS, Google Cloud or your own services verify tokens using the standard OpenID Connect discovery flow.
+These endpoints are public and are served from your provider's issuer URL or its custom domain.
+
+First, the relying party fetches the discovery document to find the `jwks_uri`:
 
 ```http
 GET /.well-known/openid-configuration
 ```
 
-Next, it will contact the following endpoint to get the public keys.
+Then it fetches the public keys from the JWKS endpoint and uses them to verify the token signature:
 
 ```http
 GET /.well-known/jwks
 ```
-
-The `jwks` endpoint contains the public keys used to verify the token signature.
-
-Requests to these endpoints are not logged.
-
-These are public endpoints and this workflow is the openid standard.
-These endpoints will be accessible via your project's URL or custom domain, if configured.

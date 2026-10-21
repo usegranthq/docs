@@ -77,7 +77,7 @@ export async function generateMetadata(props: {
 
   return createMetadata({
     title: page.data.title,
-    description: page.data.description ?? "Usegrant documentation",
+    description: page.data.description ?? "useGrant documentation",
     keywords: page.data.keywords,
     metadataBase: getSiteUrl(),
     openGraph: {

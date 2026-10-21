@@ -1,0 +1,85 @@
+---
+title: Quickstart
+description: Create a provider and a client, then mint your first access token.
+---
+
+This quickstart walks you through issuing your first token with the REST API.
+The examples use `https://sdk.usegrant.dev`. On a self-hosted instance, use `https://<your-app-domain>/api/sdk` instead.
+
+## 1. Create an API key
+
+Create an API key on the **Settings → API Keys** page and export it:
+
+```bash
+export USEGRANT_API_KEY=uga_<key>
+```
+
+See [API Authentication](/core/auth) for details.
+
+## 2. Create a provider
+
+A provider is an isolated OpenID Connect issuer with its own issuer URL and signing keys.
+
+```bash
+curl -X POST https://sdk.usegrant.dev/v1/providers \
+  -H "Authorization: Bearer $USEGRANT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "acme-prod", "description": "Production workloads for Acme"}'
+```
+
+The response contains the provider `id` and its `urlId`. The provider's issuer URL is `https://<PROVIDER_DOMAIN>/<urlId>`,
+or your custom domain if you add one.
+
+## 3. Create a client
+
+A client represents a workload that requests tokens. The `audience` is the `aud` claim of its tokens,
+and must match what the relying party expects, for example `sts.amazonaws.com` for AWS.
+
+```bash
+curl -X POST https://sdk.usegrant.dev/v1/providers/{providerId}/clients \
+  -H "Authorization: Bearer $USEGRANT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "deploy-bot", "audience": "sts.amazonaws.com"}'
+```
+
+The response contains the client `id` and a generated `subject`, which becomes the `sub` claim of its tokens.
+Use the subject in the trust policies of your relying parties.
+
+## 4. Create an access token
+
+```bash
+curl -X POST https://sdk.usegrant.dev/v1/providers/{providerId}/clients/{clientId}/tokens \
+  -H "Authorization: Bearer $USEGRANT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"expiresIn": 3600}'
+```
+
+```json
+{
+  "accessToken": "eyJhbGciOiJSUzI1NiIsInR5cCI6ImF0K2p3dCJ9...",
+  "type": "Bearer",
+  "expiresAt": "2026-10-21T13:00:00.000Z"
+}
+```
+
+`expiresIn` is in seconds, defaults to one hour and can be at most two days.
+
+Or with the [SDK](/core/sdk):
+
+```ts
+import UseGrant from "@usegrant/sdk";
+
+const usegrant = new UseGrant(process.env.USEGRANT_API_KEY);
+
+const { accessToken } = await usegrant.createToken("providerId", "clientId");
+```
+
+## 5. Use the token
+
+Exchange the token for cloud credentials by following one of the guides:
+
+- [AWS](/core/guides/aws)
+- [Google Cloud](/core/guides/gcp)
+- [Azure](/core/guides/azure)
+- [Alibaba Cloud](/core/guides/alibaba)
+- [Neon](/core/guides/neon)

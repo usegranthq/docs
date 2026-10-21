@@ -1,12 +1,12 @@
 ---
 title: SDK
-description: Typesafe TypeScript SDK for UseGrant API
+description: Type-safe TypeScript SDK for the useGrant API.
 ---
 
 ## Installation
 
-We provide a typesafe TypeScript SDK for UseGrant API.
-It can be installed from the npm registry using by a favorite package manager of your choice:
+The TypeScript SDK gives you type-safe access to the useGrant API.
+Install it from the npm registry with your package manager of choice:
 
 ```bash
 npm install @usegrant/sdk
@@ -14,32 +14,26 @@ npm install @usegrant/sdk
 
 ## Authentication
 
-To use the SDK, you need to have an API key. You can create one in the [UseGrant Settings Page](https://usegrant.dev/u/settings/token) page. If you face any 401 or 403 errors when you are sending a token, it can be one of the following reasons:
+The SDK needs an API key, which you can create on the [API Keys settings page](https://usegrant.dev/u/settings/keys).
+If a request fails with `401 Unauthorized`, check that:
 
-- The token is invalid, check if you have copied the token correctly. Also make sure the token is in format `uga_<token>`.
-- The token has expired, you can create a new token and replace the existing token.
+- The key was copied correctly and starts with `uga_`.
+- The key has not expired. If it has, create a new key and replace the old one.
 
-Refer to the [authentication](/auth) page for more details.
+See [API Authentication](/core/auth) for more details.
 
-## Rate Limiting
+## Rate limiting
 
-The API has a default rate limit of `1000 requests per hour` per API token. If you exceed this limit, requests will receive a `429 Too Many Requests` response with a `Retry-After` header indicating when you can resume making requests.
+Each API key is limited to `1000 requests per hour`. Requests over the limit receive a `429 Too Many Requests` response.
 
-To handle rate limits gracefully, we recommend:
+To stay within the limit:
 
-- Implementing exponential backoff and retry logic
-- Actively monitoring your API usage to ensure it remains within the set limits
-- Caching responses where appropriate
+- Retry failed requests with exponential backoff.
+- Monitor your API usage.
+- Cache responses where appropriate, for example reuse an access token until it expires instead of creating a new one per request.
 
-If you need a higher rate limit, please contact us at [support@usegrant.dev](mailto:support@usegrant.dev). We can evaluate your use case and either:
-
-- Increase your rate limit if the request is reasonable
-- Work with you on a custom plan that meets your scale requirements
+If you self-host useGrant, you can change the limit in the `apiKey` plugin configuration in `src/lib/auth.ts`.
 
 ## Usage
 
-Refer to the [Github README](https://github.com/usegranthq/sdk) for the usage instructions.
-
-[npm]: https://www.npmjs.com
-[bun]: https://bun.sh/
-[pnpm]: https://pnpm.io
+See the [README on GitHub](https://github.com/usegranthq/sdk) for usage instructions.

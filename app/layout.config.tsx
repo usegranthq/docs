@@ -1,4 +1,4 @@
-import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
+import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
 
 /**
  * Shared layout configurations
@@ -9,6 +9,15 @@ import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
  */
 export const baseOptions: BaseLayoutProps = {
   nav: {
-    title: 'useGrant',
+    title: "useGrant",
+    url: "https://usegrant.dev",
   },
+  githubUrl: "https://github.com/usegranthq/app",
+  links: [
+    {
+      text: "Home",
+      url: "https://usegrant.dev",
+      external: true,
+    },
+  ],
 };

@@ -1,0 +1,92 @@
+---
+title: Azure Workload Identity
+description: Sign in to Azure with useGrant tokens using Microsoft Entra workload identity federation.
+keywords:
+  - Client Credentials grant with Azure
+  - Workload Identity Federation with Azure
+  - Federated credentials with Microsoft Entra ID
+---
+
+This guide shows how to authenticate with Azure using Microsoft Entra workload identity federation.
+Your applications sign in as an app registration without client secrets or certificates.
+
+Microsoft Entra ID exchanges the useGrant token for a short-lived Azure access token,
+which your applications use to access Azure resources.
+
+## Prerequisites
+
+- A useGrant provider with a client
+- An Azure subscription
+- The [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) installed on your system
+
+Federated credentials match the token's issuer, subject and audience exactly, so only your useGrant client can sign in as the app.
+
+## Step 1: Create a client in useGrant
+
+Create a client with the audience `api://AzureADTokenExchange`, which is the audience Microsoft Entra ID expects by default.
+Note the client's subject and your provider's issuer URL, shown on the provider's domain settings page.
+
+## Step 2: Register an app in Microsoft Entra ID
+
+1. Sign in to the Azure portal and open **Microsoft Entra ID**.
+2. Select **App registrations** and click **New registration**.
+3. Enter a name and click **Register**.
+4. Note the **Application (client) ID** and **Directory (tenant) ID** from the overview page.
+
+## Step 3: Add a federated credential
+
+1. In the app registration, select **Certificates & secrets**, then the **Federated credentials** tab.
+2. Click **Add credential** and select **Other issuer** as the scenario.
+3. Fill in the details:
+   - Issuer: your provider's issuer URL, for example `https://auth.example.com/acme-prod`.
+   - Subject identifier: the subject of your useGrant client.
+   - Audience: `api://AzureADTokenExchange`.
+   - Name: a name for the credential.
+4. Click **Add**.
+
+See the [Microsoft documentation on workload identity federation](https://learn.microsoft.com/entra/workload-id/workload-identity-federation-create-trust) for more details and options.
+
+## Step 4: Grant access to Azure resources
+
+Assign the app the roles it needs, for example **Reader** on a resource group:
+
+```bash
+az role assignment create \
+  --assignee <APPLICATION_CLIENT_ID> \
+  --role Reader \
+  --scope /subscriptions/<SUBSCRIPTION_ID>/resourceGroups/<RESOURCE_GROUP>
+```
+
+## Step 5: Sign in with the Azure CLI
+
+Create an access token for your client in useGrant, then sign in:
+
+```bash
+az login --service-principal \
+  --username <APPLICATION_CLIENT_ID> \
+  --tenant <DIRECTORY_TENANT_ID> \
+  --federated-token <USEGRANT_ACCESS_TOKEN>
+```
+
+To test the sign-in, list the resource groups you can access:
+
+```bash
+az group list --output table
+```
+
+### Alternative: using curl
+
+Exchange the useGrant token for an Azure access token with the client credentials flow,
+using the useGrant token as the client assertion:
+
+```bash
+curl -X POST "https://login.microsoftonline.com/<DIRECTORY_TENANT_ID>/oauth2/v2.0/token" \
+  --data-urlencode "client_id=<APPLICATION_CLIENT_ID>" \
+  --data-urlencode "grant_type=client_credentials" \
+  --data-urlencode "scope=https://management.azure.com/.default" \
+  --data-urlencode "client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer" \
+  --data-urlencode "client_assertion=<USEGRANT_ACCESS_TOKEN>"
+```
+
+The `access_token` in the response is a Bearer token for the Azure Resource Manager API.
+Change the `scope` to request a token for another API, for example `https://storage.azure.com/.default` for Azure Storage.

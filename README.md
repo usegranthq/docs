@@ -1,26 +1,37 @@
-# docs
+# useGrant docs
 
-This is a Next.js application generated with
-[Create Fumadocs](https://github.com/fuma-nama/fumadocs).
+Documentation site for [useGrant](https://github.com/usegranthq/app), built with
+[Next.js](https://nextjs.org) and [Fumadocs](https://fumadocs.dev). It is served at
+[usegrant.dev/docs](https://usegrant.dev/docs).
 
-Run development server:
+## Development
 
 ```bash
+npm install
 npm run dev
-# or
-pnpm dev
-# or
-yarn dev
 ```
 
-Open http://localhost:3000 with your browser to see the result.
+Open [http://localhost:3500/docs](http://localhost:3500/docs). Use `localhost`: Next.js blocks
+dev resources for other origins, which leaves the page non-interactive.
 
-## Learn More
+## Content
 
-To learn more about Next.js and Fumadocs, take a look at the following
-resources:
+- `content/docs/core`: guides and concepts, written in MDX. Each folder's `meta.json` sets the
+  sidebar order.
+- `content/docs/api`: API reference pages, generated from the app's OpenAPI specification by
+  `npm run genapi`. Don't edit them by hand.
+- `components`: custom components available in MDX, registered in `mdx-components.tsx`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js
-  features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-- [Fumadocs](https://fumadocs.vercel.app) - learn about Fumadocs
+## Build
+
+```bash
+npm run build
+```
+
+`prebuild` regenerates the API reference first. The app is built with `output: "standalone"` and
+served under the `/docs` base path, with assets under `/docs-static`.
+
+## Deployment
+
+Pushes to `master` deploy to Vercel through the [GitHub Actions workflow](./.github/workflows/deploy.yml). A
+`Dockerfile` and `compose.yml` are included for running the site in a container.

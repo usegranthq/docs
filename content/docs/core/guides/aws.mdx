@@ -1,53 +1,53 @@
 ---
 title: AWS Assume Role
-description: Guide to assume roles in AWS using OpenID Connect and Web Identity Federation
+description: Assume AWS IAM roles using OpenID Connect and web identity federation.
 keywords:
   - Client Credentials grant with AWS
   - Assume Role with AWS
   - Temporary Security Credentials with AWS
 ---
 
-This guide will walk you through the process of authenticating with AWS services using Web Identity Federation.
-By following these steps, you can obtain temporary security credentials without embedding long-term credentials in your applications.
+This guide shows how to authenticate with AWS using web identity federation.
+Your applications get temporary security credentials without embedding long-term credentials.
 
-The temporary security credentials returned by the AWS API consist of an access key ID, a secret access key, and a security token.
-Applications can use these temporary security credentials to securely access AWS Resources.
+The temporary credentials returned by AWS consist of an access key ID, a secret access key and a session token,
+which your applications use to access AWS resources.
 
 ## Prerequisites
 
-- An active client in usegrant.dev
+- A useGrant provider with a client
 - An AWS account
-- AWS CLI installed on your system
+- The AWS CLI installed on your system
 
-Before proceeding, you must plan your security strategy to ensure that access tokens are only allocated in a predictable way.
-To control how your cloud provider issues access tokens, you must define at least one condition to your openid connect provider,
-so that untrusted entities can't request access tokens for your cloud resources.
+Before you start, plan your security strategy so that credentials are only issued in a predictable way.
+Define at least one condition on your role's trust policy, so untrusted identities can't request credentials for your cloud resources.
 
-## Step 1: Set Up an OpenID Connect Provider in AWS
+<Callout title="Issuer URL">
+  Your provider's issuer URL has the form `https://<PROVIDER_DOMAIN>/<URL_ID>` and is shown on the provider's
+  domain settings page. If you set up a custom domain, the issuer URL is `https://<CUSTOM_DOMAIN>`.
+  The examples below use `https://auth.example.com/acme-prod`.
+</Callout>
 
-1. Log in to the AWS Management Console and navigate to the IAM service.
-2. In the navigation pane, select "Identity Providers".
-3. Click on "Create Provider".
-4. Select "OpenID Connect" as the provider type.
-5. Fill in the required details and click "Create Provider".
+## Step 1: Add an OpenID Connect provider in AWS
 
-For the provider URL use the url of your project or the custom domain you set up.
+1. Sign in to the AWS Management Console and open the IAM service.
+2. In the navigation pane, select **Identity providers**.
+3. Click **Add provider**.
+4. Select **OpenID Connect** as the provider type.
+5. Enter your provider's issuer URL as the provider URL.
+6. Enter the audience you set when creating the client in useGrant. For AWS, this is typically `sts.amazonaws.com`.
+7. Click **Add provider**.
 
-Ensure that the audience matches the one used to create the client in useGrant.dev.
-For AWS, the audience is typically `sts.amazonaws.com`.
+See the [AWS documentation](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc.html) for more details and options.
 
-Refer to the [AWS documentation](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc.html) for more details and customization options.
+## Step 2: Create a role in AWS
 
-## Step 2: Create a Role in AWS
+1. In the IAM console, select **Roles** in the navigation pane.
+2. Click **Create role**.
+3. Choose **Web identity** as the trusted entity type.
+4. Select the identity provider from the previous step and its audience.
 
-1. Access the AWS Management Console and go to the IAM service.
-2. In the navigation pane, click on "Roles".
-3. Select "Create Role".
-4. Choose "Web Identity" as the trusted entity.
-5. Select the provider you set up in the previous step and choose the appropriate audience.
-
-For enhanced security, you can also create a custom trust policy that is more restrictive.
-For example:
+For tighter security, restrict the role's trust policy to your client's subject. For example:
 
 ```json
 {
@@ -56,13 +56,13 @@ For example:
     {
       "Effect": "Allow",
       "Principal": {
-        "Federated": "arn:aws:iam::123456123456:oidc-provider/acme-prod.auth.usegrant.dev"
+        "Federated": "arn:aws:iam::123456123456:oidc-provider/auth.example.com/acme-prod"
       },
       "Action": "sts:AssumeRoleWithWebIdentity",
       "Condition": {
         "StringEquals": {
-          "acme-prod.auth.usegrant.dev:sub": "Z3bXuT3jaHG-ZF9LYt2hmNGi3iAJlUv9",
-          "acme-prod.auth.usegrant.dev:aud": "sts.amazonaws.com"
+          "auth.example.com/acme-prod:sub": "Z3bXuT3jaHG-ZF9LYt2hmNGi3iAJlUv9",
+          "auth.example.com/acme-prod:aud": "sts.amazonaws.com"
         }
       }
     }
@@ -70,66 +70,60 @@ For example:
 }
 ```
 
-Replace `acme-prod.auth.usegrant.dev` with the url of your project or the custom domain you set up.
-And also replace the subject with the one from your client.
+Replace `auth.example.com/acme-prod` with your issuer URL without the `https://` scheme,
+and the subject with the one shown on your client in useGrant.
 
-## Step 3: Assume Role with AWS CLI
+## Step 3: Assume the role with the AWS CLI
 
 Run the following command to assume the role:
 
 ```bash
 aws sts assume-role-with-web-identity \
-    --role-arn <ROLE_ARN_YOU_CREATED> \
-    --role-session-name <YOUR_SESSION_NAME> \
-    --web-identity-token <THE_ACCESS_TOKEN_FROM_USEGRANT>
+  --role-arn <ROLE_ARN> \
+  --role-session-name <SESSION_NAME> \
+  --web-identity-token <USEGRANT_ACCESS_TOKEN>
 ```
 
-This would return the temporary security credentials with AccessKeyId, SecretAccessKey and SessionToken.
-You can use these credentials to securely access AWS Resources.
-
-For example,
+AWS returns temporary credentials with an `AccessKeyId`, `SecretAccessKey` and `SessionToken`,
+which you can use to access AWS resources. For example:
 
 ```json
 {
-    "SubjectFromWebIdentityToken": "amzn1.account.AF6RHO7KZU5XRVQJGXK6HB56KR2A"
-    "Audience": "client.5498841531868486423.1548@apps.example.com",
-    "AssumedRoleUser": {
-        "Arn": "arn:aws:sts::123456789012:assumed-role/FederatedWebIdentityRole/app1",
-        "AssumedRoleId": "AROACLKWSDQRAOEXAMPLE:app1"
-    }
-    "Credentials": {
-        "AccessKeyId": "AKIAIOSFODNN7EXAMPLE",
-        "SecretAccessKey": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYzEXAMPLEKEY",
-        "SessionToken": "AQoEXAMPLEH4aoAH0gNCAPyJxz4BlCFFxWNE1OPTgk5TthT+FvwqnKwRcOIfrRh3c/LTo6UDdyJwOOvEVPvLXCrrrUtdnniCEXAMPLE/IvU1dYUg2RVAJBanLiHb4IgRmpRV3zrkuWJOgQs8IZZaIv2BXIa2R4OlgkBN9bkUDNCJiBeb/AXlzBBko7b15fjrBs2+cTQtpZ3CYWFXG8C5zqx37wnOE49mRl/+OtkIKGO7fAE",
-        "Expiration": "2020-05-19T18:06:10+00:00"
-    },
-    "Provider": "www.amazon.com"
+  "Credentials": {
+    "AccessKeyId": "ASIAIOSFODNN7EXAMPLE",
+    "SecretAccessKey": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYzEXAMPLEKEY",
+    "SessionToken": "AQoEXAMPLEH4aoAH0gNCAPyJxz4BlCFFxWNE1OPTgk5TthT+FvwqnKwRcOIfrRh3c/LTo6UDdyJwOOvEVPvLXCrrrUtdnniCEXAMPLE",
+    "Expiration": "2026-05-19T18:06:10+00:00"
+  },
+  "SubjectFromWebIdentityToken": "Z3bXuT3jaHG-ZF9LYt2hmNGi3iAJlUv9",
+  "AssumedRoleUser": {
+    "AssumedRoleId": "AROACLKWSDQRAOEXAMPLE:app1",
+    "Arn": "arn:aws:sts::123456123456:assumed-role/OIDCRole/app1"
+  },
+  "Provider": "arn:aws:iam::123456123456:oidc-provider/auth.example.com/acme-prod",
+  "Audience": "sts.amazonaws.com"
 }
 ```
 
-By default, the temporary security credentials created by AssumeRoleWithWebIdentity last for one hour.
-However, you can use the optional DurationSeconds parameter to specify the duration of your session.
-You can provide a value from 900 seconds (15 minutes) up to the maximum session duration setting for the role.
-This setting can have a value from 1 hour to 12 hours.
+By default, the credentials returned by `AssumeRoleWithWebIdentity` are valid for one hour.
+Use the optional `--duration-seconds` parameter to change this, from 900 seconds (15 minutes)
+up to the role's maximum session duration, which can be set between 1 and 12 hours.
 
-Learn more about the [AssumeRoleWithWebIdentity API](https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRoleWithWebIdentity.html) from the official AWS documentation.
+Learn more about the [AssumeRoleWithWebIdentity API](https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRoleWithWebIdentity.html) in the AWS documentation.
 
-## Using CloudFormation Template
+## Using a CloudFormation template
 
-You can also use CloudFormation to create the role and the trust policy instead of manually creating
-them as shown in the previous steps.
-
-Example CloudFormation template:
+Instead of creating the identity provider and role manually, you can create both with CloudFormation:
 
 ```yaml
-AWSTemplateFormatVersion: '2010-09-09'
-Description: Configure OIDC Provider and IAM Role for Web Identity Federation
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Configure an OIDC provider and IAM role for web identity federation
 
 Resources:
   OIDCProvider:
     Type: AWS::IAM::OIDCProvider
     Properties:
-      Url: https://<PROJECT_URL_ID>.usegrant.dev
+      Url: <ISSUER_URL>
       ClientIdList:
         - sts.amazonaws.com
 
@@ -138,26 +132,23 @@ Resources:
     Properties:
       RoleName: OIDCRole
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Statement:
           - Effect: Allow
             Principal:
               Federated: !Ref OIDCProvider
             Action: sts:AssumeRoleWithWebIdentity
             Condition:
-              ForAnyValue:StringEquals:
-                <PROJECT_URL_ID>.usegrant.dev:sub: <SUBJECT_FROM_CLIENT>
-                <PROJECT_URL_ID>.usegrant.dev:aud: sts.amazonaws.com
-      ManagedPolicyArns: # replace with the policy you want to attach to the role
-        - arn:aws:iam::aws:policy/AdministratorAccess
+              StringEquals:
+                <ISSUER_HOST_AND_PATH>:sub: <CLIENT_SUBJECT>
+                <ISSUER_HOST_AND_PATH>:aud: sts.amazonaws.com
+      ManagedPolicyArns: # replace with the policies you want to attach to the role
+        - arn:aws:iam::aws:policy/ReadOnlyAccess
 ```
 
-Copy the template and replace the placeholders like `PROJECT_URL_ID`, `SUBJECT_FROM_CLIENT`
-with your own values.
+Replace the placeholders with your own values:
 
-- Audience is typically `sts.amazonaws.com`. But you can also use the audience you used
-  while creating the project in useGrant.dev.
-- `SUBJECT_FROM_CLIENT` is the subject from the client, this will be generated
-  after you create the client.
-
-If you have a custom domain set up, replace the `Url` with your custom domain.
+- `ISSUER_URL` is your provider's issuer URL, for example `https://auth.example.com/acme-prod`.
+- `ISSUER_HOST_AND_PATH` is the issuer URL without the `https://` scheme, for example `auth.example.com/acme-prod`.
+- `CLIENT_SUBJECT` is the subject generated when you created the client.
+- The audience is typically `sts.amazonaws.com`, but it must match the audience you set on the client in useGrant.

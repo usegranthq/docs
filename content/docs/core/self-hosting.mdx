@@ -1,0 +1,93 @@
+---
+title: Self-hosting
+description: Run useGrant on your own infrastructure with Docker Compose.
+---
+
+useGrant is open source under the [Apache License 2.0](https://github.com/usegranthq/app/blob/master/LICENSE)
+and can run anywhere Docker runs. The bundled Docker Compose setup starts four services:
+
+- **postgres**: the PostgreSQL database
+- **migrate**: applies database migrations, then exits
+- **app**: the useGrant web app and API, on port `3000`
+- **cron**: calls the app's cron endpoint every two hours to remove expired sessions and rotate signing keys
+
+## Requirements
+
+- Docker with Docker Compose
+- A domain for the app and a domain for provider issuer URLs, both served over HTTPS
+- A reverse proxy or load balancer that terminates TLS in front of port `3000`
+
+Relying parties such as AWS and Google Cloud only trust issuers served over HTTPS with a valid certificate.
+
+## 1. Clone the repository
+
+```bash
+git clone https://github.com/usegranthq/app.git usegrant
+cd usegrant
+```
+
+## 2. Configure the environment
+
+```bash
+cp .env.example .env
+```
+
+Fill in `.env`. All variables are required unless marked optional.
+
+| Variable                                                       | Description                                                                                         |
+| -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `SITE_URL`                                                     | Public URL of the app, for example `https://usegrant.example.com`                                   |
+| `PROVIDER_DOMAIN`                                              | Domain of provider issuer URLs. A provider's issuer URL is `https://<PROVIDER_DOMAIN>/<urlId>`      |
+| `DATABASE_URL`                                                 | PostgreSQL connection string, for example `postgresql://usegrant:<password>@postgres:5432/usegrant` |
+| `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`            | Credentials for the bundled PostgreSQL container, matching `DATABASE_URL`                           |
+| `BETTER_AUTH_SECRET`                                           | Random secret used to sign sessions                                                                 |
+| `JWT_SIGNING_SECRET`                                           | Random secret used to sign the email verification cookie                                            |
+| `STATE_HMAC_SECRET_KEY`                                        | Random secret                                                                                       |
+| `CRON_SECRET`                                                  | Random secret the cron service sends to the cron endpoint                                           |
+| `OAUTH_GITHUB_APP_CLIENT_ID`, `OAUTH_GITHUB_APP_CLIENT_SECRET` | GitHub OAuth app for sign-in                                                                        |
+| `OAUTH_GOOGLE_APP_CLIENT_ID`, `OAUTH_GOOGLE_APP_CLIENT_SECRET` | Google OAuth client for sign-in                                                                     |
+| `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`                   | Cloudflare Turnstile keys for the login captcha                                                     |
+| `EMAIL_FROM`                                                   | Sender address for login emails                                                                     |
+| `RESEND_API_KEY`                                               | Resend API key, used to send emails in production                                                   |
+| `NODEMAILER_SMTP_URL`                                          | SMTP URL, used to send emails in development                                                        |
+| `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ZONE_ID`                   | Cloudflare for SaaS credentials, used to provision custom domains                                   |
+| `OTEL_DOMAIN`, `OTEL_API_TOKEN`, `OTEL_AXIOM_DATASET`          | OpenTelemetry export to Axiom                                                                       |
+| `INVITE_TOKEN`                                                 | Optional. When set, only visitors with the invite token can sign up                                 |
+| `DOCS_URL`                                                     | Optional. URL of a docs deployment to serve under `/docs`                                           |
+
+Generate random secrets with `openssl rand -base64 32`.
+
+## 3. Build the image
+
+The build reads `.env`, so configure it first.
+
+```bash
+docker build -t usegrant .
+```
+
+## 4. Start the services
+
+```bash
+DOCKER_REPOSITORY=usegrant docker compose up -d
+```
+
+Compose waits for the database, runs the migrations, then starts the app and the cron service.
+The app listens on port `3000`. Point your reverse proxy at it for both `SITE_URL` and `PROVIDER_DOMAIN`.
+
+## 5. Use your instance
+
+- The dashboard is served at `SITE_URL`.
+- The REST API is served under `/api/sdk`, for example `https://usegrant.example.com/api/sdk/v1/providers`.
+- The OpenAPI specification is at `/api/sdk/open-api.json`.
+
+Follow the [quickstart](/core/quickstart) with your instance's API URL to issue your first token.
+
+## Updating
+
+Pull the latest changes, rebuild the image and restart. Migrations run automatically on start.
+
+```bash
+git pull
+docker build -t usegrant .
+DOCKER_REPOSITORY=usegrant docker compose up -d
+```
