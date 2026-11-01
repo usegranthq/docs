@@ -15,7 +15,7 @@
     "fast-glob": "^3.3.3",
     "fumadocs-core": "^16.17.5",
     "fumadocs-mdx": "^15.4.7",
-    "fumadocs-openapi": "^12.5.2",
+    "fumadocs-openapi": "^12.5.7",
     "fumadocs-ui": "^16.17.5",
     "geist": "^1.8.1",
     "lucide-react": "^1.59.0",
